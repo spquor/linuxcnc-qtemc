@@ -1,7 +1,7 @@
 #ifndef EMCOBJECT_H
 #define EMCOBJECT_H
 
-#include "qstructs.h"
+#include "emcstructs.h"
 
 class QtEMC : public QObject
 {

@@ -1,5 +1,5 @@
-#ifndef QSTRUCTS_H
-#define QSTRUCTS_H
+#ifndef EMCSTRUCTS_H
+#define EMCSTRUCTS_H
 
 #include <QObject>
 
@@ -31,4 +31,4 @@ public:
     friend class QtEMC;
 };
 
-#endif // QSTRUCTS_H
+#endif // EMCSTRUCTS_H

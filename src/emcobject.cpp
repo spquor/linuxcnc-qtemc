@@ -1,12 +1,12 @@
 #include "emcobject.h"
 
-#include "emcglb.h"
-#include "../shcom.hh"
-
 #include <QSettings>
 #include <QTimerEvent>
 
 #include <QDebug>
+
+#include "emcglb.h"
+#include "ext/shcom.hh"
 
 QtEMC::QtEMC(QObject *parent) : QObject(parent)
 {
@@ -132,8 +132,8 @@ void QtEMC::timerEvent(QTimerEvent *event)
     if (emcUpdateType == EMC_UPDATE_AUTO)
         updateStatus();
 
-    set_estop(emcStatus->task.state == EMC_TASK_STATE::ESTOP);
-    set_power(emcStatus->task.state == EMC_TASK_STATE::ON);
+    set_estop(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ESTOP);
+    set_power(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ON);
 
     set_mode(static_cast<int>(emcStatus->task.mode));
     // set_traj(static_cast<int>(emcStatus->motion.traj.mode));
@@ -174,21 +174,21 @@ void QtEMC::set_mode(int value)
     if (m_mode == value)
         return;
 
-    switch (static_cast<EMC_TASK_MODE>(value))
+    switch (static_cast<EMC_TASK_MODE_ENUM>(value))
     {
-	case EMC_TASK_MODE::MANUAL:
-	    sendManual();
-	    break;
-	case EMC_TASK_MODE::AUTO:
-	    sendAuto();
-	    break;
-	case EMC_TASK_MODE::MDI:
-	    sendMdi();
-	    break;
-	default:
-	    sendEstop();
-	    break;
-	}
+    case EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MANUAL:
+        sendManual();
+        break;
+    case EMC_TASK_MODE_ENUM::EMC_TASK_MODE_AUTO:
+        sendAuto();
+        break;
+    case EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MDI:
+        sendMdi();
+        break;
+    default:
+        sendEstop();
+        break;
+    }
 
     m_mode = value;
     emit sig_mode(value);

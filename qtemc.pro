@@ -2,30 +2,24 @@ TEMPLATE = app
 TARGET = qtemc
 
 SOURCES += \
-    qtemc.cpp \
-    ../shcom.cc \
-    emcobject.cpp
+    ext/shcom.cc \
+    src/qtemc.cpp \
+    src/emcobject.cpp
 
 HEADERS += \
-    qstructs.h \
-    ../shcom.hh \
-    emcobject.h
-
-QML_FILES += \
-    vcp.qml
+    ext/shcom.hh \
+    src/emcobject.h \
+    src/emcstructs.h
 
 DEFINES += ULAPI
 
 QT = core gui qml quick
-QMAKE_CXXFLAGS += -std=c++20
 
-RIP_DIR = $$_PRO_FILE_PWD_/../../../..
-OBJ_DIR = $${RIP_DIR}/src/objects/emc/usr_intf/qtemc
-
+RIP_DIR = ../linuxcnc/
 DESTDIR = $${RIP_DIR}/bin
-OBJECTS_DIR = $${OBJ_DIR}
-MOC_DIR = $${OBJ_DIR}
-RCC_DIR = $${OBJ_DIR}
+
+OBJECTS_DIR = obj
+MOC_DIR = obj
 
 INCLUDEPATH += $${RIP_DIR}/include
 INCLUDEPATH += $${RIP_DIR}/src
