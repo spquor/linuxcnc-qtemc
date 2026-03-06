@@ -40,6 +40,9 @@
 # debug information files
 *.dwo
 
+# start shell script
+start.sh
+
 # qmake
 Makefile
 .qmake.stash
