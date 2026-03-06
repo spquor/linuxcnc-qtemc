@@ -3,7 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 
 Window {
-    title: emc.machine
+    title: emc.info.machine + " v." + emc.info.version
 
     visible: true
     width: 640
@@ -15,7 +15,8 @@ Window {
         anchors.centerIn: parent
         font.pointSize: 24
 
-        text: "E-STOP: " + (emc.estop ? "ON" : "OFF") + "\t" + "POWER: " + (emc.power ? "ON" : "OFF")
+        text: "E-STOP: " + (emc.task.estop ? "ON" : "OFF") + "\t"
+                + "POWER: " + (emc.task.power ? "ON" : "OFF")
     }
 
     Row {
@@ -36,7 +37,7 @@ Window {
             id: xHome
 
             text: "Home"
-            enabled: emc.power && (emc.mode == 1)
+            enabled: emc.task.power && (emc.task.mode == 1)
             checkable: true
             checked: false
 
@@ -55,20 +56,22 @@ Window {
             id: xJogBackwards
 
             text: "<"
-            enabled: emc.power && (emc.mode == 1)
+            enabled: emc.task.power && (emc.task.mode == 1)
 
             onPressed: emc.jog(0, -100)
             onReleased: emc.jog_stop(0)
+            onCanceled: emc.jog_stop(0)
         }
 
         Button {
             id: xJogForwards
 
             text: ">"
-            enabled: emc.power && (emc.mode == 1)
+            enabled: emc.task.power && (emc.task.mode == 1)
 
             onPressed: emc.jog(0, +100)
             onReleased: emc.jog_stop(0)
+            onCanceled: emc.jog_stop(0)
         }
 
     }
@@ -84,7 +87,7 @@ Window {
             id: btnManual
 
             text: "MANUAL"
-            checked: emc.mode == 1
+            checked: emc.task.mode == 1
 
             onClicked: emc.set_mode(1)
         }
@@ -93,7 +96,7 @@ Window {
             id: btnAuto
 
             text: "AUTO"
-            checked: emc.mode == 2
+            checked: emc.task.mode == 2
 
             onClicked: emc.set_mode(2)
         }
@@ -102,7 +105,7 @@ Window {
             id: btnMdi
 
             text: "MDI"
-            checked: emc.mode == 3
+            checked: emc.task.mode == 3
 
             onClicked: emc.set_mode(3)
         }
@@ -117,7 +120,7 @@ Window {
 
         text: "Turn Estop"
 
-        onClicked: emc.set_estop(!emc.estop)
+        onClicked: emc.set_estop(!emc.task.estop)
     }
 
     Button {
@@ -129,9 +132,8 @@ Window {
 
         text: "Turn Machine"
 
-        enabled: !emc.estop
+        enabled: !emc.task.estop
 
-        onClicked: emc.set_power(!emc.power)
+        onClicked: emc.set_power(!emc.task.power)
     }
-
 }

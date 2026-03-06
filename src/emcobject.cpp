@@ -10,7 +10,15 @@
 
 QtEMC::QtEMC(QObject *parent) : QObject(parent)
 {
+    emcErrorBuffer = 0;
+    emcStatusBuffer = 0;
+    emcStatus = 0;
+    emcCommandBuffer = 0;
 
+    m_info = 0;
+    m_task = 0;
+
+    syncTimerId = 0;
 }
 
 QtEMC::~QtEMC()
@@ -27,22 +35,41 @@ void QtEMC::thisInit()
 
     // init NML buffers
 
-    emcErrorBuffer = 0;
-    emcStatusBuffer = 0;
-    emcStatus = 0;
-    emcCommandBuffer = 0;
-
     error_string[LINELEN-1] = 0;
     operator_text_string[LINELEN-1] = 0;
     operator_display_string[LINELEN-1] = 0;
     programStartLine = 0;
+
+    // init qml structures
+
+    m_info = new QEmcInfo();
+    m_task = new QMachine();
 }
 
 void QtEMC::thisQuit()
 {
+    // wait until current message has been received
+
     if (0 != emcStatusBuffer) {
-        // wait until current message has been received
         emcCommandWaitReceived();
+    }
+
+    // stop event timer
+
+    if (syncTimerId) {
+        killTimer(syncTimerId);
+    }
+
+    // clean up qml structures
+
+    if (m_info) {
+        delete m_info;
+        m_info = 0;
+    }
+
+    if (m_task) {
+        delete m_task;
+        m_task = 0;
     }
 
     // clean up NML buffers
@@ -100,16 +127,25 @@ int QtEMC::initEMC(int argc, char *argv[])
 
     // load vcp parameters from configuration file
     QSettings ini(emc_inifile, QSettings::IniFormat);
-    m_machine = ini.value("EMC/MACHINE", "QtEMC").toString();
+    QEmcInfo* info = qobject_cast<QEmcInfo*>(m_info);
+
+    info->m_machine = ini.value("EMC/MACHINE", "QtEMC").toString();
+    info->m_version = ini.value("EMC/VERSION", "QtEMC").toString();
 
     // get cycle time, and setup operator interface update timer
     syncTimerId = startTimer(ini.value("DISPLAY/CYCLE_TIME").toReal() * 1000);
     emcTimeout = 0.0;
 
+    if (!m_motion.isEmpty())
+    {
+        qDeleteAll(m_motion);
+        m_motion.clear();
+    }
+
     for(int j = 0; j < ini.value("KINS/JOINTS", 0).toInt(); ++j)
     {
-        QJoint *qjoint = new QJoint;
-        m_joints.append(qjoint);
+        QJoint *qjoint = new QJoint();
+        m_motion.append(qjoint);
 
         qjoint->m_minimum = emcStatus->motion.joint[j].minPositionLimit;
         qjoint->m_maximum = emcStatus->motion.joint[j].maxPositionLimit;
@@ -118,8 +154,7 @@ int QtEMC::initEMC(int argc, char *argv[])
         qjoint->m_units = emcStatus->motion.joint[j].units;
     }
 
-    // notify initialization finished
-    emit sig_init();
+    emit info->sig_init();
 
     return 0;
 }
@@ -138,12 +173,24 @@ void QtEMC::timerEvent(QTimerEvent *event)
     set_mode(static_cast<int>(emcStatus->task.mode));
     // set_traj(static_cast<int>(emcStatus->motion.traj.mode));
 
-    update_motion();
+    for(int j = 0; j < m_motion.size(); ++j)
+    {
+        QJoint *qjoint = qobject_cast<QJoint *>(m_motion.at(j));
+
+        qjoint->m_inpos = emcStatus->motion.joint[j].inpos;
+        qjoint->m_homed = emcStatus->motion.joint[j].homed;
+        qjoint->m_position = emcStatus->motion.joint[j].input;
+        qjoint->m_velocity = emcStatus->motion.joint[j].velocity;
+
+        emit qjoint->sig_motion();
+    }
 }
 
 void QtEMC::set_estop(bool value)
 {
-    if (m_estop == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_estop == value)
         return;
 
     if (value)
@@ -151,13 +198,15 @@ void QtEMC::set_estop(bool value)
     else
         sendEstopReset();
 
-    m_estop = value;
-    emit sig_estop(value);
+    task->m_estop = value;
+    emit task->sig_estop(value);
 }
 
 void QtEMC::set_power(bool value)
 {
-    if (m_power == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_power == value)
         return;
 
     if (value)
@@ -165,13 +214,15 @@ void QtEMC::set_power(bool value)
     else
         sendMachineOff();
 
-    m_power = value;
-    emit sig_power(value);
+    task->m_power = value;
+    emit task->sig_power(value);
 }
 
 void QtEMC::set_mode(int value)
 {
-    if (m_mode == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_mode == value)
         return;
 
     switch (static_cast<EMC_TASK_MODE_ENUM>(value))
@@ -190,41 +241,52 @@ void QtEMC::set_mode(int value)
         break;
     }
 
-    m_mode = value;
-    emit sig_mode(value);
+    task->m_mode = value;
+    emit task->sig_mode(value);
 }
 
 void QtEMC::set_traj(int value)
 {
-    if (m_traj == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_traj == value)
         return;
 
     sendSetTeleopEnable(value);
 
-    m_traj = value;
-    emit sig_traj(value);
+    task->m_traj = value;
+    emit task->sig_traj(value);
 }
 
 void QtEMC::override_feed(double value)
 {
-    if (m_feed == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_feed == value)
         return;
 
     sendFeedOverride(value);
 
-    m_feed = value;
-    emit sig_feed(value);
+    task->m_feed = value;
+    emit task->sig_feed(value);
 }
 
 void QtEMC::override_rapid(double value)
 {
-    if (m_rapid == value)
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_rapid == value)
         return;
 
     sendRapidOverride(value);
 
-    m_rapid = value;
-    emit sig_rapid(value);
+    task->m_rapid = value;
+    emit task->sig_rapid(value);
+}
+
+QObject* QtEMC::joint(int joint)
+{
+    return m_motion.at(joint);
 }
 
 void QtEMC::set_home(int joint, bool home)
@@ -233,11 +295,6 @@ void QtEMC::set_home(int joint, bool home)
         sendHome(joint);
     else
         sendUnHome(joint);
-}
-
-QObject *QtEMC::joint(int joint)
-{
-    return m_joints.at(joint);
 }
 
 void QtEMC::jog(int joint, int speed)
@@ -258,21 +315,4 @@ void QtEMC::move(int axis, int speed)
 void QtEMC::move_stop(int axis)
 {
     sendJogStop(axis, JOGTELEOP);
-}
-
-void QtEMC::update_motion()
-{
-    for(int j = 0; j < m_joints.size(); ++j)
-    {
-        QJoint *qjoint = qobject_cast<QJoint *>(m_joints[j]);
-
-        qjoint->m_inpos = emcStatus->motion.joint[j].inpos;
-        qjoint->m_homed = emcStatus->motion.joint[j].homed;
-        qjoint->m_position = emcStatus->motion.joint[j].input;
-        qjoint->m_velocity = emcStatus->motion.joint[j].velocity;
-
-        emit qjoint->sig_joint();
-    }
-
-    emit sig_motion();
 }
