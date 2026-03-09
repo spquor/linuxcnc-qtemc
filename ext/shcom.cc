@@ -26,7 +26,6 @@
 #include <sys/types.h>
 #include <inttypes.h>
 
-#include "emc/linuxcnc.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -67,9 +66,9 @@ EMC_UPDATE_TYPE emcUpdateType;
 EMC_WAIT_TYPE emcWaitType;
 
 void strupr(char *s)
-{  
+{
   int i;
-  
+
   for (i = 0; i < (int)strlen(s); i++)
     if (s[i] > 96 && s[i] <= 'z')
       s[i] -= 32;
@@ -1128,7 +1127,7 @@ int sendToolSetOffset(int toolno, double zoffset, double diameter)
     return 0;
 }
 
-int sendToolSetOffset(int toolno, double zoffset, double xoffset, 
+int sendToolSetOffset(int toolno, double zoffset, double xoffset,
                       double diameter, double frontangle, double backangle,
                       int orientation)
 {
@@ -1137,9 +1136,9 @@ int sendToolSetOffset(int toolno, double zoffset, double xoffset,
     emc_tool_set_offset_msg.toolno = toolno;
     emc_tool_set_offset_msg.offset.tran.z = zoffset;
     emc_tool_set_offset_msg.offset.tran.x = xoffset;
-    emc_tool_set_offset_msg.diameter = diameter;      
-    emc_tool_set_offset_msg.frontangle = frontangle;  
-    emc_tool_set_offset_msg.backangle = backangle;    
+    emc_tool_set_offset_msg.diameter = diameter;
+    emc_tool_set_offset_msg.frontangle = frontangle;
+    emc_tool_set_offset_msg.backangle = backangle;
     emc_tool_set_offset_msg.orientation = orientation;
 
     emcCommandSend(emc_tool_set_offset_msg);
@@ -1330,7 +1329,7 @@ int iniLoad(const char *filename)
 
 int checkStatus ()
 {
-    if (emcStatus) return 1;    
+    if (emcStatus) return 1;
     return 0;
 }
 

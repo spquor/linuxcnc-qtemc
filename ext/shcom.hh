@@ -17,6 +17,7 @@
 #ifndef SHCOM_HH
 #define SHCOM_HH
 
+
 #include "linuxcnc.h"           // INCH_PER_MM
 #include "emc_nml.hh"
 #include "nml_oi.hh"            // NML_ERROR_LEN
@@ -63,7 +64,7 @@ extern NML *emcErrorBuffer;
 extern char error_string[NML_ERROR_LEN];
 extern char operator_text_string[NML_TEXT_LEN];
 extern char operator_display_string[NML_DISPLAY_LEN];
-extern char defaultPath[80]; 
+extern char defaultPath[80];
 
 // default value for timeout, 0 means wait forever
 extern double emcTimeout;

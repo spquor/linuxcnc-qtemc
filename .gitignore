@@ -43,6 +43,9 @@
 # start shell script
 start.sh
 
+# Object file directory
+obj/
+
 # qmake
 Makefile
 .qmake.stash
