@@ -26,13 +26,12 @@ OBJECTS_DIR = obj
 MOC_DIR = obj
 
 INCLUDEPATH += $${LINUXCNC_DIR}/include
-LIBS += $${LINUXCNC_DIR}/lib/liblinuxcnc.a
-LIBS += $${LINUXCNC_DIR}/lib/libnml.so.0
-LIBS += $${LINUXCNC_DIR}/lib/liblinuxcncini.so.0
-LIBS += $${LINUXCNC_DIR}/lib/liblinuxcnchal.so.0
-LIBS += $${LINUXCNC_DIR}/lib/libtooldata.so.0
+INCLUDEPATH += $${LINUXCNC_DIR}/include/linuxcnc
 
-target.files = $${TARGET}
+LIBS += -L$${LINUXCNC_DIR}/lib/
+LIBS += -llinuxcnc -lnml -llinuxcncini -llinuxcnchal -ltooldata
+
+target.files = $${DESTDIR}/$${TARGET}
 target.path = $${LINUXCNC_DIR}/bin
 
 style.files = $${QML_FILES}
