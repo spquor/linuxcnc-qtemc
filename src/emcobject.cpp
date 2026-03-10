@@ -114,7 +114,7 @@ int QtEMC::initEMC(int argc, char *argv[])
 
     // init NML
     // return if emc is not already running
-    if (0 != tryNml(0.0, 0.0)) {
+    if (0 != tryNml()) {
         qWarning("error in emc connection");
         thisQuit();
         return -1;
