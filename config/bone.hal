@@ -1,11 +1,11 @@
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
-#loadrt hal_gpio outputs=P9_23,P9_25
+loadrt hal_gpio outputs=P9_23,P9_25
 loadrt stepgen step_type=0,0,0,0,0,0
 
 # Read inputs in base thread
-#addf hal_gpio.read base-thread
+addf hal_gpio.read base-thread
 
 # Make steps in base thread
 addf stepgen.make-pulses base-thread
@@ -17,7 +17,7 @@ addf motion-command-handler servo-thread
 addf stepgen.update-freq servo-thread
 
 # Send signals in base thread
-#addf hal_gpio.write base-thread
+addf hal_gpio.write base-thread
 
 # Step Generator setup
 setp stepgen.0.position-scale 2500
@@ -58,8 +58,8 @@ setp stepgen.5.dirhold 500000
 setp stepgen.5.dirsetup 500000
 
 # Connect Stepgen to GPIO
-#net Xstep stepgen.0.step => hal_gpio.P9_25-out
-#net Xdir stepgen.0.dir => hal_gpio.P9_23-out
+net Xstep stepgen.0.step => hal_gpio.P9_25-out
+net Xdir stepgen.0.dir => hal_gpio.P9_23-out
 #net Ystep stepgen.1.step => hal_gpio.P9_25-out
 #net Ydir stepgen.1.dir => hal_gpio.P9_23-out
 #net Zstep stepgen.2.step => hal_gpio.P9_25-out
