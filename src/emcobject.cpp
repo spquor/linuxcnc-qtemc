@@ -6,7 +6,7 @@
 #include <QDebug>
 
 #include "emcglb.h"
-#include "ext/shcom.hh"
+#include "shcom.hh"
 
 QtEMC::QtEMC(QObject *parent) : QObject(parent)
 {
@@ -193,6 +193,8 @@ void QtEMC::set_estop(bool value)
     if (!task || task->m_estop == value)
         return;
 
+    qDebug() << "m_estop" << value;
+
     if (value)
         sendEstop();
     else
@@ -209,6 +211,8 @@ void QtEMC::set_power(bool value)
     if (!task || task->m_power == value)
         return;
 
+    qDebug() << "m_power" << value;
+
     if (value)
         sendMachineOn();
     else
@@ -224,6 +228,8 @@ void QtEMC::set_mode(int value)
 
     if (!task || task->m_mode == value)
         return;
+
+    qDebug() << "m_mode" << value;
 
     switch (static_cast<EMC_TASK_MODE_ENUM>(value))
     {

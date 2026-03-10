@@ -1,0 +1,99 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+#loadrt hal_gpio outputs=P9_23,P9_25
+loadrt stepgen step_type=0,0,0,0,0,0
+
+# Read inputs in base thread
+#addf hal_gpio.read base-thread
+
+# Make steps in base thread
+addf stepgen.make-pulses base-thread
+
+# Hook functions to servo thread
+addf stepgen.capture-position servo-thread
+addf motion-controller servo-thread
+addf motion-command-handler servo-thread
+addf stepgen.update-freq servo-thread
+
+# Send signals in base thread
+#addf hal_gpio.write base-thread
+
+# Step Generator setup
+setp stepgen.0.position-scale 2500
+setp stepgen.0.maxaccel 750
+setp stepgen.0.steplen 25000
+setp stepgen.0.stepspace 25000
+setp stepgen.0.dirhold 500000
+setp stepgen.0.dirsetup 500000
+setp stepgen.1.position-scale 2500
+setp stepgen.1.maxaccel 750
+setp stepgen.1.steplen 25000
+setp stepgen.1.stepspace 25000
+setp stepgen.1.dirhold 500000
+setp stepgen.1.dirsetup 500000
+setp stepgen.2.position-scale 2500
+setp stepgen.2.maxaccel 750
+setp stepgen.2.steplen 25000
+setp stepgen.2.stepspace 25000
+setp stepgen.2.dirhold 500000
+setp stepgen.2.dirsetup 500000
+setp stepgen.3.position-scale 2500
+setp stepgen.3.maxaccel 750
+setp stepgen.3.steplen 25000
+setp stepgen.3.stepspace 25000
+setp stepgen.3.dirhold 500000
+setp stepgen.3.dirsetup 500000
+setp stepgen.4.position-scale 2500
+setp stepgen.4.maxaccel 750
+setp stepgen.4.steplen 25000
+setp stepgen.4.stepspace 25000
+setp stepgen.4.dirhold 500000
+setp stepgen.4.dirsetup 500000
+setp stepgen.5.position-scale 2500
+setp stepgen.5.maxaccel 750
+setp stepgen.5.steplen 25000
+setp stepgen.5.stepspace 25000
+setp stepgen.5.dirhold 500000
+setp stepgen.5.dirsetup 500000
+
+# Connect Stepgen to GPIO
+#net Xstep stepgen.0.step => hal_gpio.P9_25-out
+#net Xdir stepgen.0.dir => hal_gpio.P9_23-out
+#net Ystep stepgen.1.step => hal_gpio.P9_25-out
+#net Ydir stepgen.1.dir => hal_gpio.P9_23-out
+#net Zstep stepgen.2.step => hal_gpio.P9_25-out
+#net Zdir stepgen.2.dir => hal_gpio.P9_23-out
+#net Astep stepgen.3.step => hal_gpio.P9_25-out
+#net Adir stepgen.3.dir => hal_gpio.P9_23-out
+#net Bstep stepgen.4.step => hal_gpio.P9_25-out
+#net Bdir stepgen.4.dir => hal_gpio.P9_23-out
+#net Cstep stepgen.5.step => hal_gpio.P9_25-out
+#net Cdir stepgen.5.dir => hal_gpio.P9_23-out
+
+# Connect signals for step generators
+net Xen joint.0.amp-enable-out => stepgen.0.enable
+net Xpos-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd
+net Xpos-fb stepgen.0.position-fb => joint.0.motor-pos-fb
+net Yen joint.1.amp-enable-out => stepgen.1.enable
+net Ypos-cmd joint.1.motor-pos-cmd => stepgen.1.position-cmd
+net Ypos-fb stepgen.1.position-fb => joint.1.motor-pos-fb
+net Zen joint.2.amp-enable-out => stepgen.2.enable
+net Zpos-cmd joint.2.motor-pos-cmd => stepgen.2.position-cmd
+net Zpos-fb stepgen.2.position-fb => joint.2.motor-pos-fb
+net Aen joint.3.amp-enable-out => stepgen.3.enable
+net Apos-cmd joint.3.motor-pos-cmd => stepgen.3.position-cmd
+net Apos-fb stepgen.3.position-fb => joint.3.motor-pos-fb
+net Ben joint.4.amp-enable-out => stepgen.4.enable
+net Bpos-cmd joint.4.motor-pos-cmd => stepgen.4.position-cmd
+net Bpos-fb stepgen.4.position-fb => joint.4.motor-pos-fb
+net Cen joint.5.amp-enable-out => stepgen.5.enable
+net Cpos-cmd joint.5.motor-pos-cmd => stepgen.5.position-cmd
+net Cpos-fb stepgen.5.position-fb => joint.5.motor-pos-fb
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

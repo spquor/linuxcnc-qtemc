@@ -2,17 +2,23 @@ TEMPLATE = app
 TARGET = qtemc
 
 SOURCES += \
-    ext/shcom.cc \
+    src/shcom.cc \
     src/emcobject.cpp \
     src/qtemc.cpp
 
 HEADERS += \
-    ext/shcom.hh \
+    src/shcom.hh \
     src/emcobject.h \
     src/emcstructs.h
 
 QML_FILES += \
-    qml/vcp.qml
+    config/vcp.qml
+
+EMC_FILES += \
+    config/bone.hal \
+    config/tool.tbl \
+    config/example.ngc \
+    config/bone.ini
 
 DEFINES += ULAPI
 
@@ -34,7 +40,7 @@ LIBS += -llinuxcnc -lnml -llinuxcncini -llinuxcnchal -ltooldata
 target.files = $${DESTDIR}/$${TARGET}
 target.path = $${LINUXCNC_DIR}/bin
 
-style.files = $${QML_FILES}
+style.files = $${QML_FILES} $${EMC_FILES}
 style.path = $${LINUXCNC_DIR}/share/linuxcnc
 
 INSTALLS += target style

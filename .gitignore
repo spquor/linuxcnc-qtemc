@@ -37,6 +37,10 @@
 *.out
 *.app
 
+# Linuxcnc temporary files
+*.var
+*.var.bak
+
 # debug information files
 *.dwo
 
