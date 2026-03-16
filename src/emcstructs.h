@@ -11,6 +11,8 @@ class QEmcInfo : public QObject
     Q_PROPERTY(QString version MEMBER m_version NOTIFY sig_init) QString m_version;
 
 public:
+    explicit QEmcInfo(QObject *parent) : QObject(parent) {}
+
     Q_SIGNAL void sig_init();
 
     friend class QtEMC;
@@ -28,6 +30,8 @@ class QMachine : public QObject
     Q_PROPERTY(double rapid MEMBER m_rapid NOTIFY sig_rapid) double m_rapid;
 
 public:
+    explicit QMachine(QObject *parent) : QObject(parent) {}
+
     Q_SIGNAL void sig_estop(bool value);
     Q_SIGNAL void sig_power(bool value);
     Q_SIGNAL void sig_mode(int value);
@@ -52,6 +56,8 @@ class QJoint : public QObject
     Q_PROPERTY(double maximum MEMBER m_maximum NOTIFY sig_motion) double m_maximum;
 
 public:
+    explicit QJoint(QObject *parent) : QObject(parent) {}
+
     Q_SIGNAL void sig_motion();
 
     friend class QtEMC;

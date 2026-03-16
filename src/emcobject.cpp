@@ -28,7 +28,7 @@ QtEMC::~QtEMC()
 
 void QtEMC::thisInit()
 {
-    emcWaitType = EMC_WAIT_RECEIVED;
+    emcWaitType = EMC_WAIT_DONE;
     emcUpdateType = EMC_UPDATE_AUTO;
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
@@ -42,8 +42,11 @@ void QtEMC::thisInit()
 
     // init qml structures
 
-    m_info = new QEmcInfo();
-    m_task = new QMachine();
+    m_info = new QEmcInfo(this);
+    m_task = new QMachine(this);
+
+    for (int j = 0; j < EMCMOT_MAX_JOINTS; ++j)
+        m_motion.append(new QJoint(this));
 }
 
 void QtEMC::thisQuit()
@@ -70,6 +73,12 @@ void QtEMC::thisQuit()
     if (m_task) {
         delete m_task;
         m_task = 0;
+    }
+
+    if (!m_motion.isEmpty())
+    {
+        qDeleteAll(m_motion);
+        m_motion.clear();
     }
 
     // clean up NML buffers
@@ -136,22 +145,17 @@ int QtEMC::initEMC(int argc, char *argv[])
     syncTimerId = startTimer(ini.value("DISPLAY/CYCLE_TIME").toReal() * 1000);
     emcTimeout = 0.0;
 
-    if (!m_motion.isEmpty())
-    {
-        qDeleteAll(m_motion);
-        m_motion.clear();
-    }
-
     for(int j = 0; j < ini.value("KINS/JOINTS", 0).toInt(); ++j)
     {
-        QJoint *qjoint = new QJoint();
-        m_motion.append(qjoint);
+        QJoint *qjoint = qobject_cast<QJoint *>(m_motion.at(j));
 
         qjoint->m_minimum = emcStatus->motion.joint[j].minPositionLimit;
         qjoint->m_maximum = emcStatus->motion.joint[j].maxPositionLimit;
 
         qjoint->m_type = emcStatus->motion.joint[j].jointType;
         qjoint->m_units = emcStatus->motion.joint[j].units;
+
+        emit qjoint->sig_motion();
     }
 
     emit info->sig_init();
@@ -193,8 +197,6 @@ void QtEMC::set_estop(bool value)
     if (!task || task->m_estop == value)
         return;
 
-    qDebug() << "m_estop" << value;
-
     if (value)
         sendEstop();
     else
@@ -211,8 +213,6 @@ void QtEMC::set_power(bool value)
     if (!task || task->m_power == value)
         return;
 
-    qDebug() << "m_power" << value;
-
     if (value)
         sendMachineOn();
     else
@@ -228,8 +228,6 @@ void QtEMC::set_mode(int value)
 
     if (!task || task->m_mode == value)
         return;
-
-    qDebug() << "m_mode" << value;
 
     switch (static_cast<EMC_TASK_MODE_ENUM>(value))
     {
