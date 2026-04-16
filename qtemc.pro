@@ -3,11 +3,13 @@ TARGET = qtemc
 
 SOURCES += \
     src/shcom.cc \
+    src/deviceio.cpp \
     src/emcobject.cpp \
     src/qtemc.cpp
 
 HEADERS += \
     src/shcom.hh \
+    src/deviceio.h \
     src/emcobject.h \
     src/emcstructs.h
 
@@ -35,7 +37,7 @@ INCLUDEPATH += $${LINUXCNC_DIR}/include
 INCLUDEPATH += $${LINUXCNC_DIR}/include/linuxcnc
 
 LIBS += -L$${LINUXCNC_DIR}/lib/
-LIBS += -llinuxcnc -lnml -llinuxcncini -llinuxcnchal -ltooldata
+LIBS += -llinuxcnc -lnml -llinuxcncini -llinuxcnchal -ltooldata -lgpiod -liio
 
 target.files = $${DESTDIR}/$${TARGET}
 target.path = $${LINUXCNC_DIR}/bin
