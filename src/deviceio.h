@@ -38,8 +38,27 @@ protected:
     Q_SIGNAL void sig_joystick(int x, int y, int z);
 
 private:
-    bool readAnalogValue(long long &member, long long value);
-    bool readDigitalValue(int &member, int value);
+    bool readAnalogValue(long long &member, long long value)
+    {
+        const bool need_update = (abs(member - value) > 4);
+
+        if (need_update) {
+            member = value;
+        }
+
+        return need_update;
+    }
+
+    bool readDigitalValue(int &member, int value)
+    {
+        const bool need_update = (member != value);
+
+        if (need_update) {
+            member = value;
+        }
+
+        return need_update;
+    }
 
     int syncTimerId;
 };
