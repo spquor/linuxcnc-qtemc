@@ -42,31 +42,31 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
     if (gpio_chip0 && gpio_chip0 && gpio_chip0 && gpio_chip3 != nullptr)
     {
         stop_no_ln = gpiod_chip_get_line(gpio_chip2, 2);
-        if (!stop_no_ln || !gpiod_line_request_input(stop_no_ln, "qtemc"))
+        if (!stop_no_ln || gpiod_line_request_input(stop_no_ln, "qtemc") == -1)
             qWarning("gpio line [stop_no] request failed");
 
         stop_nc_ln = gpiod_chip_get_line(gpio_chip2, 5);
-        if (!stop_nc_ln || !gpiod_line_request_input(stop_nc_ln, "qtemc"))
+        if (!stop_nc_ln || gpiod_line_request_input(stop_nc_ln, "qtemc") == -1)
             qWarning("gpio line [stop_nc] request failed");
 
         move_ok_ln = gpiod_chip_get_line(gpio_chip0, 22);
-        if (!move_ok_ln || !gpiod_line_request_input(move_ok_ln, "qtemc"))
+        if (!move_ok_ln || gpiod_line_request_input(move_ok_ln, "qtemc") == -1)
             qWarning("gpio line [move_ok] request failed");
 
         button1_ln = gpiod_chip_get_line(gpio_chip1, 13);
-        if (!button1_ln || !gpiod_line_request_input(button1_ln, "qtemc"))
+        if (!button1_ln || gpiod_line_request_input(button1_ln, "qtemc") == -1)
             qWarning("gpio line [button1] request failed");
 
         button2_ln = gpiod_chip_get_line(gpio_chip0, 23);
-        if (!button2_ln || !gpiod_line_request_input(button2_ln, "qtemc"))
+        if (!button2_ln || gpiod_line_request_input(button2_ln, "qtemc") == -1)
             qWarning("gpio line [button2] request failed");
 
         button3_ln = gpiod_chip_get_line(gpio_chip1, 15);
-        if (!button3_ln || !gpiod_line_request_input(button3_ln, "qtemc"))
+        if (!button3_ln || gpiod_line_request_input(button3_ln, "qtemc") == -1)
             qWarning("gpio line [button3] request failed");
 
         button4_ln = gpiod_chip_get_line(gpio_chip0, 27);
-        if (!button4_ln || !gpiod_line_request_input(button4_ln, "qtemc"))
+        if (!button4_ln || gpiod_line_request_input(button4_ln, "qtemc") == -1)
             qWarning("gpio line [button4] request failed");
     }
     else
