@@ -34,6 +34,8 @@ iio_channel *joy_z_chn;
 
 QtIO::QtIO(QObject *parent) : QObject(parent)
 {
+    bool successfull_load = true;
+
     gpio_chip0 = gpiod_chip_open("/dev/gpiochip0");
     gpio_chip1 = gpiod_chip_open("/dev/gpiochip1");
     gpio_chip2 = gpiod_chip_open("/dev/gpiochip2");
@@ -71,50 +73,71 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
     }
     else
     {
-        qFatal("cannot open gpio chips");
+        qCritical("cannot open gpio chips");
+
+        successfull_load = false;
     }
 
     iio_ctx = iio_create_local_context();
-    iio_dev = iio_context_find_device(iio_ctx, "iio:device0");
 
-    if (iio_dev != nullptr)
+    if (iio_ctx != nullptr)
     {
-        joy_x_chn = iio_device_find_channel(iio_dev, "voltage0", false);
-        if (joy_x_chn == nullptr)
-            qWarning("iio channel [joy_x] request failed");
+        iio_dev = iio_context_find_device(iio_ctx, "iio:device0");
 
-        joy_y_chn = iio_device_find_channel(iio_dev, "voltage2", false);
-        if (joy_y_chn == nullptr)
-            qWarning("iio channel [joy_y] request failed");
+        if (iio_dev != nullptr)
+        {
+            joy_x_chn = iio_device_find_channel(iio_dev, "voltage0", false);
+            if (joy_x_chn == nullptr)
+                qWarning("iio channel [joy_x] request failed");
 
-        joy_z_chn = iio_device_find_channel(iio_dev, "voltage4", false);
-        if (joy_z_chn == nullptr)
-            qWarning("iio channel [joy_z] request failed");
+            joy_y_chn = iio_device_find_channel(iio_dev, "voltage2", false);
+            if (joy_y_chn == nullptr)
+                qWarning("iio channel [joy_y] request failed");
+
+            joy_z_chn = iio_device_find_channel(iio_dev, "voltage4", false);
+            if (joy_z_chn == nullptr)
+                qWarning("iio channel [joy_z] request failed");
+        }
+        else
+        {
+            qCritical("cannot open iio device");
+
+            successfull_load = false;
+        }
     }
     else
     {
-        qFatal("cannot open iio device");
+        qCritical("cannot create iio context");
+
+        successfull_load = false;
     }
 
-    syncTimerId = startTimer(10);
+    if (successfull_load)
+    {
+        syncTimerId = startTimer(10);
+    }
+    else
+    {
+        syncTimerId = 0;
+    }
 }
 
 QtIO::~QtIO()
 {
-    gpiod_line_release(stop_no_ln);
-    gpiod_line_release(stop_nc_ln);
-    gpiod_line_release(move_ok_ln);
-    gpiod_line_release(button1_ln);
-    gpiod_line_release(button2_ln);
-    gpiod_line_release(button3_ln);
-    gpiod_line_release(button4_ln);
+    if (gpio_chip0 != nullptr)
+        gpiod_chip_close(gpio_chip0);
 
-    gpiod_chip_close(gpio_chip0);
-    gpiod_chip_close(gpio_chip1);
-    gpiod_chip_close(gpio_chip2);
-    gpiod_chip_close(gpio_chip3);
+    if (gpio_chip1 != nullptr)
+        gpiod_chip_close(gpio_chip1);
 
-    iio_context_destroy(iio_ctx);
+    if (gpio_chip2 != nullptr)
+        gpiod_chip_close(gpio_chip2);
+
+    if (gpio_chip3 != nullptr)
+        gpiod_chip_close(gpio_chip3);
+
+    if (iio_ctx != nullptr)
+        iio_context_destroy(iio_ctx);
 }
 
 void QtIO::timerEvent(QTimerEvent *event)

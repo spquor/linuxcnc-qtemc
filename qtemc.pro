@@ -18,6 +18,8 @@ QML_FILES += \
 
 EMC_FILES += \
     config/bone.hal \
+    config/bone_gpiod.hal \
+    config/bone_pruss.hal \
     config/tool.tbl \
     config/example.ngc \
     config/bone.ini
