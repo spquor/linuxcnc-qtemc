@@ -114,7 +114,7 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
 
     if (successfull_load)
     {
-        syncTimerId = startTimer(10);
+        syncTimerId = startTimer(100);
     }
     else
     {

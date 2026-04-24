@@ -37,7 +37,7 @@ Window {
             id: xHome
 
             text: "Home"
-            enabled: emc.task.power && (emc.task.mode == 1)
+            enabled: emc.task.power && (emc.task.mode === 1)
             checkable: true
             checked: false
 
@@ -56,7 +56,7 @@ Window {
             id: xJogBackwards
 
             text: "<"
-            enabled: emc.task.power && (emc.task.mode == 1)
+            enabled: emc.task.power && (emc.task.mode === 1)
 
             onPressed: emc.jog(0, -100)
             onReleased: emc.jog_stop(0)
@@ -67,7 +67,7 @@ Window {
             id: xJogForwards
 
             text: ">"
-            enabled: emc.task.power && (emc.task.mode == 1)
+            enabled: emc.task.power && (emc.task.mode === 1)
 
             onPressed: emc.jog(0, +100)
             onReleased: emc.jog_stop(0)
@@ -87,7 +87,7 @@ Window {
             id: btnManual
 
             text: "MANUAL"
-            checked: emc.task.mode == 1
+            checked: emc.task.mode === 1
 
             onClicked: emc.set_mode(1)
         }
@@ -96,7 +96,7 @@ Window {
             id: btnAuto
 
             text: "AUTO"
-            checked: emc.task.mode == 2
+            checked: emc.task.mode === 2
 
             onClicked: emc.set_mode(2)
         }
@@ -105,7 +105,7 @@ Window {
             id: btnMdi
 
             text: "MDI"
-            checked: emc.task.mode == 3
+            checked: emc.task.mode === 3
 
             onClicked: emc.set_mode(3)
         }

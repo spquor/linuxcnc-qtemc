@@ -1,0 +1,89 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/modules/prubin/pru_generic.bin halname=hpg num_stepgens=6
+
+# Hook functions to servo thread
+addf hpg.capture-position servo-thread
+addf motion-controller servo-thread
+addf motion-command-handler servo-thread
+addf hpg.update servo-thread
+
+# Step Generator setup
+setp hpg.stepgen.00.position-scale 2500
+setp hpg.stepgen.00.maxaccel 750
+setp hpg.stepgen.00.steplen 25000
+setp hpg.stepgen.00.stepspace 25000
+setp hpg.stepgen.00.dirhold 500000
+setp hpg.stepgen.00.dirsetup 500000
+setp hpg.stepgen.01.position-scale 2500
+setp hpg.stepgen.01.maxaccel 750
+setp hpg.stepgen.01.steplen 25000
+setp hpg.stepgen.01.stepspace 25000
+setp hpg.stepgen.01.dirhold 500000
+setp hpg.stepgen.01.dirsetup 500000
+setp hpg.stepgen.02.position-scale 2500
+setp hpg.stepgen.02.maxaccel 750
+setp hpg.stepgen.02.steplen 25000
+setp hpg.stepgen.02.stepspace 25000
+setp hpg.stepgen.02.dirhold 500000
+setp hpg.stepgen.02.dirsetup 500000
+setp hpg.stepgen.03.position-scale 2500
+setp hpg.stepgen.03.maxaccel 750
+setp hpg.stepgen.03.steplen 25000
+setp hpg.stepgen.03.stepspace 25000
+setp hpg.stepgen.03.dirhold 500000
+setp hpg.stepgen.03.dirsetup 500000
+setp hpg.stepgen.04.position-scale 2500
+setp hpg.stepgen.04.maxaccel 750
+setp hpg.stepgen.04.steplen 25000
+setp hpg.stepgen.04.stepspace 25000
+setp hpg.stepgen.04.dirhold 500000
+setp hpg.stepgen.04.dirsetup 500000
+setp hpg.stepgen.05.position-scale 2500
+setp hpg.stepgen.05.maxaccel 750
+setp hpg.stepgen.05.steplen 25000
+setp hpg.stepgen.05.stepspace 25000
+setp hpg.stepgen.05.dirhold 500000
+setp hpg.stepgen.05.dirsetup 500000
+
+# Connect Stepgen to GPIO
+setp Xstep hpg.stepgen.00.steppin 931
+setp Xdir hpg.stepgen.00.dirpin 930
+setp Ystep hpg.stepgen.01.steppin 929
+setp Ydir hpg.stepgen.01.dirpin 928
+setp Zstep hpg.stepgen.02.steppin 927
+setp Zdir hpg.stepgen.02.dirpin 925
+setp Astep hpg.stepgen.03.steppin 918
+setp Adir hpg.stepgen.03.dirpin 917
+setp Bstep hpg.stepgen.04.steppin 916
+setp Bdir hpg.stepgen.04.dirpin 915
+setp Cstep hpg.stepgen.05.steppin 914
+setp Cdir hpg.stepgen.05.dirpin 912
+
+# Connect signals for step generators
+net Xen joint.0.amp-enable-out => hpg.stepgen.00.enable
+net Xpos-cmd joint.0.motor-pos-cmd => hpg.stepgen.00.position-cmd
+net Xpos-fb hpg.stepgen.00.position-fb => joint.0.motor-pos-fb
+net Yen joint.1.amp-enable-out => hpg.stepgen.01.enable
+net Ypos-cmd joint.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
+net Ypos-fb hpg.stepgen.01.position-fb => joint.1.motor-pos-fb
+net Zen joint.2.amp-enable-out => hpg.stepgen.02.enable
+net Zpos-cmd joint.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
+net Zpos-fb hpg.stepgen.02.position-fb => joint.2.motor-pos-fb
+net Aen joint.3.amp-enable-out => hpg.stepgen.03.enable
+net Apos-cmd joint.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
+net Apos-fb hpg.stepgen.03.position-fb => joint.3.motor-pos-fb
+net Ben joint.4.amp-enable-out => hpg.stepgen.04.enable
+net Bpos-cmd joint.4.motor-pos-cmd => hpg.stepgen.04.position-cmd
+net Bpos-fb hpg.stepgen.04.position-fb => joint.4.motor-pos-fb
+net Cen joint.5.amp-enable-out => hpg.stepgen.05.enable
+net Cpos-cmd joint.5.motor-pos-cmd => hpg.stepgen.05.position-cmd
+net Cpos-fb hpg.stepgen.05.position-fb => joint.5.motor-pos-fb
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
