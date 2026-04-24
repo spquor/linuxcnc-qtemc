@@ -48,18 +48,18 @@ setp hpg.stepgen.05.dirhold 500000
 setp hpg.stepgen.05.dirsetup 500000
 
 # Connect Stepgen to GPIO
-setp Xstep hpg.stepgen.00.steppin 931
-setp Xdir hpg.stepgen.00.dirpin 930
-setp Ystep hpg.stepgen.01.steppin 929
-setp Ydir hpg.stepgen.01.dirpin 928
-setp Zstep hpg.stepgen.02.steppin 927
-setp Zdir hpg.stepgen.02.dirpin 925
-setp Astep hpg.stepgen.03.steppin 918
-setp Adir hpg.stepgen.03.dirpin 917
-setp Bstep hpg.stepgen.04.steppin 916
-setp Bdir hpg.stepgen.04.dirpin 915
-setp Cstep hpg.stepgen.05.steppin 914
-setp Cdir hpg.stepgen.05.dirpin 912
+setp hpg.stepgen.00.steppin 931
+setp hpg.stepgen.00.dirpin 930
+setp hpg.stepgen.01.steppin 929
+setp hpg.stepgen.01.dirpin 928
+setp hpg.stepgen.02.steppin 927
+setp hpg.stepgen.02.dirpin 925
+setp hpg.stepgen.03.steppin 918
+setp hpg.stepgen.03.dirpin 917
+setp hpg.stepgen.04.steppin 916
+setp hpg.stepgen.04.dirpin 915
+setp hpg.stepgen.05.steppin 914
+setp hpg.stepgen.05.dirpin 912
 
 # Connect signals for step generators
 net Xen joint.0.amp-enable-out => hpg.stepgen.00.enable
