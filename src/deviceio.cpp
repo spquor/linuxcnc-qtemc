@@ -23,6 +23,8 @@ gpiod_line *button2_ln;
 gpiod_line *button3_ln;
 gpiod_line *button4_ln;
 
+gpiod_line *out_ena_ln;
+
 iio_context *iio_ctx;
 iio_device *iio_dev;
 
@@ -70,6 +72,10 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
         button4_ln = gpiod_chip_get_line(gpio_chip0, 27);
         if (!button4_ln || gpiod_line_request_input(button4_ln, "qtemc") == -1)
             qWarning("gpio line [button4] request failed");
+
+        out_ena_ln = gpiod_chip_get_line(gpio_chip1, 17);
+        if (!out_ena_ln || gpiod_line_request_output(out_ena_ln, "qtemc", 1) == -1)
+            qWarning("gpio line [ENA] request failed");
     }
     else
     {
