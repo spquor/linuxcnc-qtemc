@@ -14,12 +14,12 @@ setp genserkins.ALPHA-3 -1.570796326
 setp genserkins.ALPHA-4 1.570796326
 setp genserkins.ALPHA-5 -1.570796326
 
-setp genserkins.D-0 712.5
+setp genserkins.D-0 780
 setp genserkins.D-1 0
 setp genserkins.D-2 0
-setp genserkins.D-3 1142.5
+setp genserkins.D-3 1142
 setp genserkins.D-4 0
-setp genserkins.D-5 200
+setp genserkins.D-5 300
 
 #Model translations
 #j2   x 320   z 780
