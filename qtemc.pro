@@ -17,6 +17,8 @@ QML_FILES += \
     config/vcp.qml
 
 EMC_FILES += \
+    config/start.sh \
+    config/stop.sh \
     config/bone.hal \
     config/bone_bbgpio.hal \
     config/bone_pruss.hal \

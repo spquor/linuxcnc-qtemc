@@ -44,9 +44,6 @@
 # debug information files
 *.dwo
 
-# start shell script
-start.sh
-
 # Object file directory
 obj/
 
