@@ -32,7 +32,7 @@ M428
 
 
 
-G0 X450 Y200 Z350 B10 C45
+G0 X-450 Y200 Z600 B10 C45
 
 (Draw a cube of 150mm)
 G91

@@ -5,7 +5,8 @@ setp genserkins.A-1 320
 setp genserkins.A-2 1075
 setp genserkins.A-3 200
 setp genserkins.A-4 0
-setp genserkins.A-5 -460 #t1
+setp genserkins.A-5 -460
+#setp genserkins.A-5 -460 #t1
 #setp genserkins.A-5 -385 #t2
 
 setp genserkins.ALPHA-0 0
@@ -28,5 +29,5 @@ setp genserkins.D-5 258
 #j4   x 550   z 2055
 #j5   x 1462  z 2055
 #j6   x 1625  z 2055
-#t1   x +58   z -460  //360
-#t2   x +58   z -385  //285
+#t1   x +58   z 460  //360
+#t2   x +58   z 385  //285

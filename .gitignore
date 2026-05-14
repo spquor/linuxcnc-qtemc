@@ -40,7 +40,6 @@
 # Linuxcnc temporary files
 *.var
 *.var.bak
-*_cmds.hal
 
 # debug information files
 *.dwo
