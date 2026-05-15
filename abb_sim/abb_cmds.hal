@@ -1,4 +1,4 @@
-# Thu May 14 08:31:13 MSK 2026
+# Fri May 15 09:47:43 MSK 2026
 #
 # This file:    ./abb_cmds.hal
 # Created by:   /home/user/linuxcnc/lib/hallib/basic_sim.tcl
@@ -33,8 +33,7 @@ loadusr -W hal_manualtoolchange
 #preloaded module: loadrt tpmod 
 #preloaded module: loadrt homemod 
 loadrt genserkins 
-loadrt motmod base_period_nsec=250000 servo_period_nsec=1000000 num_joints=6 
-#loadrt __base-thread  (not loaded by loadrt, no args saved)
+loadrt motmod base_period_nsec=0 servo_period_nsec=1000000 num_joints=6 
 #loadrt __servo-thread  (not loaded by loadrt, no args saved)
 loadrt pid names=J0_pid,J1_pid,J2_pid,J3_pid,J4_pid,J5_pid 
 loadrt mux2 names=J0_mux,J1_mux,J2_mux,J3_mux,J4_mux,J5_mux 
@@ -136,7 +135,6 @@ setp J5_mux.tmax                    0
 setp J5_pid.do-pid-calcs.tmax       0
 setp J5_switch.tmax                 0
 setp J5_vel.tmax                    0
-setp base-thread.tmax               0
 setp limit_speed.tmax               0
 setp motion-command-handler.tmax    0
 setp motion-controller.tmax         0
