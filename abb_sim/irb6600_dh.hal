@@ -1,3 +1,4 @@
+
 # Modified DH-parameters for IRB 6600-225
 
 setp genserkins.A-0 0
@@ -5,10 +6,7 @@ setp genserkins.A-1 320
 setp genserkins.A-2 1075
 setp genserkins.A-3 200
 setp genserkins.A-4 0
-#setp genserkins.A-5 0 #flange
-setp genserkins.A-5 -460
-#setp genserkins.A-5 -460 #tool01
-#setp genserkins.A-5 -385 #tool02
+setp genserkins.A-5 0
 
 setp genserkins.ALPHA-0 0
 setp genserkins.ALPHA-1 -1.570796326
@@ -22,8 +20,7 @@ setp genserkins.D-1 0
 setp genserkins.D-2 0
 setp genserkins.D-3 1142
 setp genserkins.D-4 0
-#setp genserkins.D-5 200 #flange
-setp genserkins.D-5 258 #spindle
+setp genserkins.D-5 200
 
 #Model translations
 #j2   x 320   z 780
@@ -31,5 +28,4 @@ setp genserkins.D-5 258 #spindle
 #j4   x 550   z 2055
 #j5   x 1462  z 2055
 #j6   x 1625  z 2055
-#t1   x +58   z 460  //360
-#t2   x +58   z 385  //285
+#fg   x 1662  z 2055

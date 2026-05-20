@@ -23,10 +23,12 @@ c.newpin("joint6", hal.HAL_FLOAT, hal.HAL_IN)
 tooltip = Capture()
 
 try: # Expect files in working directory
-    # create tool from file
-    tool = AsciiSTL(filename="cad/tool01.ast")
-#    tool = AsciiSTL(filename="cad/tool02.ast")
-    tool = Color([0.85,0.84,0.86,1],[tool])
+    # create end mill tool from file
+    mill = AsciiSTL(filename="cad/tool01.ast")
+    mill = Color([0.85,0.84,0.86,1],[mill])
+    # create disk mill tool from file
+    disk = AsciiSTL(filename="cad/tool02.ast")
+    disk = Color([0.85,0.84,0.86,1],[disk])
     # create spindle from file
     spindle = AsciiSTL(filename="cad/spindle.ast")
     spindle = Color([0.8,0.2,0.2,1],[spindle])
@@ -59,12 +61,12 @@ except Exception as detail:
     raise SystemExit("abb-gui requires files link[0-6].ast in working directory")
 
 # map tool trace to robot tooltip
-tool = Collection([tooltip,tool])
+tool = Collection([tooltip,mill])
 
-# translate tool-assembly so tool mounting point is in origin
-tool = Translate([tool],-460,0,-93) #tool01
-#tool = Translate([tool],-385,0,-93) #tool02
-spindle = Translate([spindle],-460,0,-93)
+#tool = Translate([tool],-460,0,-92) #mill
+#tool = Translate([tool],-385,0,-92) #disk
+tool = Translate([tool],-460,0,-92)
+spindle = Translate([spindle],-460,0,-92)
 
 # combine tool and coordinate axis = tool-assembly
 tool = Collection([tool,spindle])
@@ -75,7 +77,7 @@ link6 = Rotate([link6],90,0,1,0)
 # combine tool-assembly to toolholder = hand-assembly
 link6 = Collection([tool,link6])
 # create HAL-link for Joint6 "Hand rotation with tool"
-#link6 = HalRotate([link6],c,"joint6",1,0,0,1)
+link6 = HalRotate([link6],c,"joint6",1,0,0,-1)
 
 # translate hand-assembly so joint6 rotation is in origin
 link6 = Translate([link6],0,0,-163)
@@ -99,7 +101,7 @@ link4 = Rotate([link4],90,0,0,1)
 # connect wrist-assembly to forearm = forearm-assembly
 link4 = Collection([link5, link4])
 # create HAL-link for Joint4 "Forearm rotation"
-link4 = HalRotate([link4],c,"joint4",1,0,0,1)
+link4 = HalRotate([link4],c,"joint4",1,0,0,-1)
 
 # translate forearm-assembly so joint4 rotation is in origin
 link4 = Translate([link4],200,0,-230)
@@ -129,7 +131,7 @@ link2 = Translate([link2],320,0,780)
 # combine the upper-arm-assembly to the shoulder = shoulder-assembly
 link1 = Collection([link2, link1])
 # create HAL-link for Joint1 "Waist rotation"
-link1 = HalRotate([link1],c,"joint1",1,0,0,-1)
+link1 = HalRotate([link1],c,"joint1",1,0,0,1)
 
 # combine the shoulder-assembly to the base = robot
 robot = Collection([link1, link0])
@@ -139,17 +141,22 @@ robot = Collection([link1, link0])
 floor = Box(-1500,-1500,-1,1500,1500,0.0)
 floor = Color([0.5,0.5,0.5,1],[floor])
 
-# add a workpiece
+# finalize and show
+work = Capture()
+model = Collection([robot,floor,work])
+
+# with a workpiece
+#work = Capture()
 #piece = Rotate([piece],270,1,0,0) #tool01
 #piece = Rotate([piece],90,1,0,0) #tool02
 #piece = Rotate([piece],90,0,0,1)
 #piece = Translate([piece],2000,0,800)
-
-# finalize and show
-work = Capture()
-model = Collection([robot,floor,work])
 #model = Collection([robot,floor,work,piece])
+
+# create user Hud
+halhud = Hud()
+halhud.show("ABB IRB6600")
 
 # main call
 c.ready()
-main(model, tooltip, work, size=3000, lat=-60, lon=-60)
+main(model, tooltip, work, size=3000, hud=halhud, lat=-60, lon=-60)
