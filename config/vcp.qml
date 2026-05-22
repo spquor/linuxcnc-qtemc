@@ -1,139 +1,309 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.VirtualKeyboard 2.15
 
-Window {
-    title: emc.info.machine + " v." + emc.info.version
-
+ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    title: qsTr("LinuxCNC")
+    width: 1280
+    height: 720
 
-    Text {
-        id: statusText
+    palette.window: "black"
+    palette.windowText: "white"
 
-        anchors.centerIn: parent
-        font.pointSize: 24
-
-        text: "E-STOP: " + (emc.task.estop ? "ON" : "OFF") + "\t"
-                + "POWER: " + (emc.task.power ? "ON" : "OFF")
+    component CommandButton : RoundButton {
+        font.pointSize: 12
+        radius: 8
+        Layout.fillWidth: true
+        Layout.preferredWidth: 1
     }
 
-    Row {
-        id: xJog
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: statusText.top
-        anchors.bottomMargin: 10
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 4
 
-        Text {
-            id: xJogValue
-            anchors.verticalCenter: parent.verticalCenter
-            font.pointSize: 24
+        RowLayout {
 
-            text: `X: ${emc.joint(0).position.toFixed(4)}`
+            Label {
+                Layout.fillWidth: true
+                font.pointSize: 24
+
+                background: Rectangle {
+                    color: "gray"
+                    radius: 3
+                }
+
+                text: emc.info.machine + " v." + emc.info.version
+            }
+
+            Label {
+                horizontalAlignment: Label.AlignHCenter
+                Layout.preferredWidth: 120
+                font.pointSize: 24
+
+                background: Rectangle {
+                    color: "gray"
+                    radius: 3
+                }
+
+                text: qsTr("JOG")
+            }
+
+            Label {
+                horizontalAlignment: Label.AlignHCenter
+                Layout.preferredWidth: 120
+                font.pointSize: 24
+
+                background: Rectangle {
+                    color: emc.task.power ? "green" : "gray"
+                    radius: 3
+                }
+
+                text: qsTr("POWER")
+            }
+
+            Label {
+                horizontalAlignment: Label.AlignHCenter
+                Layout.preferredWidth: 120
+                font.pointSize: 24
+
+                background: Rectangle {
+                    color: emc.task.estop ? "red" : "gray"
+                    radius: 3
+                }
+
+                text: qsTr("E-STOP")
+            }
+
         }
 
-        Button {
-            id: xHome
+        RowLayout {
 
-            text: "Home"
-            enabled: emc.task.power && (emc.task.mode === 1)
-            checkable: true
-            checked: false
+            ScrollView {
+                clip: true
 
-            onToggled: {
-                if (checked) {
-                    emc.set_home(0, true)
-                    color: "lightblue"
-                } else {
-                    emc.set_home(0, false)
-                    color: "lightgray"
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+
+                topPadding: 32
+                bottomPadding: 100
+                contentWidth: width
+
+                background: Rectangle {
+                    color: "gray"
+                    radius: 3
+                }
+
+                GridLayout {
+                    columns: 1
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - 64
+
+                    CommandButton {
+                        text: qsTr("ESTOP ON/OFF")
+
+                        onClicked: emc.set_estop(!emc.task.estop)
+                    }
+
+                    CommandButton {
+                        text: qsTr("POWER ON/OFF")
+
+                        enabled: !emc.task.estop
+                        onClicked: emc.set_power(!emc.task.power)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG X FORWARD")
+
+                        enabled: emc.task.power
+                        onPressed: emc.jog(0, +100)
+                        onReleased: emc.jog_stop(0)
+                        onCanceled: emc.jog_stop(0)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG X BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(0, -100)
+                        onReleased: emc.jog_stop(0)
+                        onCanceled: emc.jog_stop(0)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG Y FORWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(1, +100)
+                        onReleased: emc.jog_stop(1)
+                        onCanceled: emc.jog_stop(1)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG Y BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(1, -100)
+                        onReleased: emc.jog_stop(1)
+                        onCanceled: emc.jog_stop(1)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG Z FORWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(2, +100)
+                        onReleased: emc.jog_stop(2)
+                        onCanceled: emc.jog_stop(2)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG Z BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(2, -100)
+                        onReleased: emc.jog_stop(2)
+                        onCanceled: emc.jog_stop(2)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG A FORWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(3, +100)
+                        onReleased: emc.jog_stop(3)
+                        onCanceled: emc.jog_stop(3)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG A BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(3, -100)
+                        onReleased: emc.jog_stop(3)
+                        onCanceled: emc.jog_stop(3)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG B FORWARD")
+                        Layout.fillWidth: true
+
+                        font.pointSize: 12
+                        radius: 8
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(4, +100)
+                        onReleased: emc.jog_stop(4)
+                        onCanceled: emc.jog_stop(4)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG B BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(4, -100)
+                        onReleased: emc.jog_stop(4)
+                        onCanceled: emc.jog_stop(4)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG C FORWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(5, +100)
+                        onReleased: emc.jog_stop(5)
+                        onCanceled: emc.jog_stop(5)
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOG C BACKWARD")
+
+                        enabled: emc.task.power
+
+                        onPressed: emc.jog(5, -100)
+                        onReleased: emc.jog_stop(5)
+                        onCanceled: emc.jog_stop(5)
+                    }
                 }
             }
+
+            Label {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+
+                background: Rectangle {
+                    color: "gray"
+                    radius: 3
+                }
+
+                TextEdit {
+                    font.pointSize: 14
+                    font.family: "monospace"
+                    wrapMode: TextEdit.Wrap
+                    color: "white"
+
+                    anchors.fill: parent
+                    text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 333.66 C990.09"
+                }
+
+                InputPanel {
+                    y: parent.height - height
+                    width: parent.width
+                    visible: active
+                }
+            }
+
+            Label {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+
+                font.pointSize: 32
+                font.family: "monospace"
+
+                background: Rectangle {
+                    color: "gray"
+                    radius: 3
+                }
+
+                GridLayout {
+                    columns: 1
+                    anchors.fill: parent
+                    anchors.margins: 100
+
+                    Label { text: `X: ${emc.joint(0).position.toFixed(2)}` }
+                    Label { text: `Y: ${emc.joint(1).position.toFixed(2)}` }
+                    Label { text: `Z: ${emc.joint(2).position.toFixed(2)}` }
+                    Label { text: `A: ${emc.joint(3).position.toFixed(2)}` }
+                    Label { text: `B: ${emc.joint(4).position.toFixed(2)}` }
+                    Label { text: `C: ${emc.joint(5).position.toFixed(2)}` }
+                }
+            }
+
         }
 
-        Button {
-            id: xJogBackwards
+        RowLayout {
 
-            text: "<"
-            enabled: emc.task.power && (emc.task.mode === 1)
+            CommandButton { text: qsTr("LinuxCNC v2.9") }
+            CommandButton { text: qsTr("SETTINGS") }
+            CommandButton { text: qsTr("COMMAND") }
+            CommandButton { text: qsTr("PROGRAM") }
+            CommandButton { text: qsTr("EXECUTE") }
 
-            onPressed: emc.jog(0, -100)
-            onReleased: emc.jog_stop(0)
-            onCanceled: emc.jog_stop(0)
         }
-
-        Button {
-            id: xJogForwards
-
-            text: ">"
-            enabled: emc.task.power && (emc.task.mode === 1)
-
-            onPressed: emc.jog(0, +100)
-            onReleased: emc.jog_stop(0)
-            onCanceled: emc.jog_stop(0)
-        }
-
-    }
-
-    Row {
-        id: modeSelector
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: statusText.bottom
-        anchors.topMargin: 10
-
-        RadioButton {
-            id: btnManual
-
-            text: "MANUAL"
-            checked: emc.task.mode === 1
-
-            onClicked: emc.set_mode(1)
-        }
-
-        RadioButton {
-            id: btnAuto
-
-            text: "AUTO"
-            checked: emc.task.mode === 2
-
-            onClicked: emc.set_mode(2)
-        }
-
-        RadioButton {
-            id: btnMdi
-
-            text: "MDI"
-            checked: emc.task.mode === 3
-
-            onClicked: emc.set_mode(3)
-        }
-    }
-
-    Button {
-        id: estopButton
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: modeSelector.bottom
-        anchors.topMargin: 20
-
-        text: "Turn Estop"
-
-        onClicked: emc.set_estop(!emc.task.estop)
-    }
-
-    Button {
-        id: powerButton
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: estopButton.bottom
-        anchors.topMargin: 20
-
-        text: "Turn Machine"
-
-        enabled: !emc.task.estop
-
-        onClicked: emc.set_power(!emc.task.power)
     }
 }
