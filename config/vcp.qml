@@ -298,11 +298,34 @@ ApplicationWindow {
 
         RowLayout {
 
-            CommandButton { text: qsTr("LinuxCNC v2.9") }
-            CommandButton { text: qsTr("SETTINGS") }
-            CommandButton { text: qsTr("COMMAND") }
-            CommandButton { text: qsTr("PROGRAM") }
-            CommandButton { text: qsTr("EXECUTE") }
+            CommandButton {
+                text: qsTr("LinuxCNC v2.9")
+            }
+
+            CommandButton {
+                text: qsTr("SETTINGS")
+            }
+
+            CommandButton {
+                text: qsTr("COMMAND")
+
+                enabled: !emc.task.estop
+                onClicked: emc.set_mode(QMachine.ModeManual)
+            }
+
+            CommandButton {
+                text: qsTr("PROGRAM")
+
+                enabled: !emc.task.estop
+                onClicked: emc.set_mode(QMachine.ModeProgram)
+            }
+
+            CommandButton {
+                text: qsTr("EXECUTE")
+
+                enabled: !emc.task.estop
+                onClicked: emc.set_mode(QMachine.ModeAuto)
+            }
 
         }
     }
