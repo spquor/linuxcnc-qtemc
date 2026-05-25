@@ -18,34 +18,19 @@ public:
     friend class QtEMC;
 };
 
-enum ModeEMC {
-    ModeManual = 1,
-    ModeAutomatic = 2,
-    ModeProgram = 3
-};
-
-enum TrajEMC {
-    TrajFree = 1,
-    TrajCoord = 2,
-    TrajTeleop = 3
-};
-
 class QMachine : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(bool estop MEMBER m_estop NOTIFY sig_estop) bool m_estop;
     Q_PROPERTY(bool power MEMBER m_power NOTIFY sig_power) bool m_power;
-    Q_PROPERTY(ModeEMC mode MEMBER m_mode NOTIFY sig_mode) ModeEMC m_mode;
-    Q_PROPERTY(TrajEMC traj MEMBER m_traj NOTIFY sig_traj) TrajEMC m_traj;
+    Q_PROPERTY(int mode MEMBER m_mode NOTIFY sig_mode) int m_mode;
+    Q_PROPERTY(int traj MEMBER m_traj NOTIFY sig_traj) int m_traj;
     Q_PROPERTY(double feed MEMBER m_feed NOTIFY sig_feed) double m_feed;
     Q_PROPERTY(double rapid MEMBER m_rapid NOTIFY sig_rapid) double m_rapid;
 
 public:
     explicit QMachine(QObject *parent) : QObject(parent) {}
-
-    Q_ENUM(ModeEMC)
-    Q_ENUM(TrajEMC)
 
     Q_SIGNAL void sig_estop(bool value);
     Q_SIGNAL void sig_power(bool value);

@@ -13,6 +13,10 @@ ApplicationWindow {
     palette.window: "black"
     palette.windowText: "white"
 
+    readonly property int emcMaunal:    1
+    readonly property int emcAuto:      2
+    readonly property int emcProgram:   3
+
     component CommandButton : RoundButton {
         font.pointSize: 12
         radius: 8
@@ -48,7 +52,14 @@ ApplicationWindow {
                     radius: 3
                 }
 
-                text: qsTr("JOG")
+                text: textmap[emc.task.mode]
+
+                readonly property var textmap: [
+                    qsTr(""),
+                    qsTr("JOG"),
+                    qsTr("AUTO"),
+                    qsTr("PROG")
+                ]
             }
 
             Label {
@@ -303,28 +314,85 @@ ApplicationWindow {
             }
 
             CommandButton {
-                text: qsTr("SETTINGS")
+                text: textmap[emc.task.mode]
+                onClicked: actions[emc.task.mode]()
+
+                readonly property var textmap: [
+                    qsTr(""),
+                    qsTr("SETTINGS"),
+                    qsTr("HOME"),
+                    qsTr("HOME")
+                ]
+
+                readonly property var actions: [
+                    function() { },
+                    function() { },
+                    function() { emc.set_mode(emcMaunal) },
+                    function() { emc.set_mode(emcMaunal) }
+                ]
             }
 
             CommandButton {
-                text: qsTr("COMMAND")
+                text: textmap[emc.task.mode]
+                onClicked: actions[emc.task.mode]()
 
                 enabled: !emc.task.estop
-                onClicked: emc.set_mode(QMachine.ModeManual)
+
+                readonly property var textmap: [
+                    qsTr(""),
+                    qsTr("COMMAND"),
+                    qsTr("START"),
+                    qsTr("FILE")
+                ]
+
+                readonly property var actions: [
+                    function() { },
+                    function() { },
+                    function() { },
+                    function() { }
+                ]
             }
 
             CommandButton {
-                text: qsTr("PROGRAM")
+                text: textmap[emc.task.mode]
+                onClicked: actions[emc.task.mode]()
 
                 enabled: !emc.task.estop
-                onClicked: emc.set_mode(QMachine.ModeProgram)
+
+                readonly property var textmap: [
+                    qsTr(""),
+                    qsTr("PROGRAM"),
+                    qsTr("FORWARD"),
+                    qsTr("MDI")
+                ]
+
+                readonly property var actions: [
+                    function() { },
+                    function() { emc.set_mode(emcProgram) },
+                    function() { },
+                    function() { }
+                ]
             }
 
             CommandButton {
-                text: qsTr("EXECUTE")
+                text: textmap[emc.task.mode]
+                onClicked: actions[emc.task.mode]()
 
                 enabled: !emc.task.estop
-                onClicked: emc.set_mode(QMachine.ModeAuto)
+
+                readonly property var textmap: [
+                    qsTr(""),
+                    qsTr("EXECUTE"),
+                    qsTr("PAUSE"),
+                    qsTr("TEACH")
+                ]
+
+                readonly property var actions: [
+                    function() { },
+                    function() { emc.set_mode(emcAuto) },
+                    function() { },
+                    function() { }
+                ]
             }
 
         }

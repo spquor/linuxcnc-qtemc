@@ -225,12 +225,9 @@ void QtEMC::set_power(bool value)
 void QtEMC::set_mode(int value)
 {
     QMachine* task = qobject_cast<QMachine*>(m_task);
-    const ModeEMC val_mode = static_cast<ModeEMC>(value);
 
-    if (!task || task->m_mode == val_mode)
+    if (!task || task->m_mode == value)
         return;
-
-    qDebug() << val_mode;
 
     switch (static_cast<EMC_TASK_MODE_ENUM>(value))
     {
@@ -248,21 +245,20 @@ void QtEMC::set_mode(int value)
         break;
     }
 
-    task->m_mode = val_mode;
+    task->m_mode = value;
     emit task->sig_mode(value);
 }
 
 void QtEMC::set_traj(int value)
 {
     QMachine* task = qobject_cast<QMachine*>(m_task);
-    const TrajEMC val_traj = static_cast<TrajEMC>(value);
 
-    if (!task || task->m_traj == val_traj)
+    if (!task || task->m_traj == value)
         return;
 
     sendSetTeleopEnable(value);
 
-    task->m_traj = val_traj;
+    task->m_traj = value;
     emit task->sig_traj(value);
 }
 
