@@ -175,7 +175,7 @@ void QtEMC::timerEvent(QTimerEvent *event)
     set_power(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ON);
 
     set_mode(static_cast<int>(emcStatus->task.mode));
-    // set_traj(static_cast<int>(emcStatus->motion.traj.mode));
+    // set_traj(static_cast<int>(emcStatus->task.traj));
 
     for(int j = 0; j < m_motion.size(); ++j)
     {
@@ -303,7 +303,7 @@ void QtEMC::set_home(int joint, bool home)
 
 void QtEMC::jog(int joint, int speed)
 {
-    sendJogCont(joint, JOGJOINT, 100.0 / speed);
+    sendJogCont(joint, JOGJOINT, speed);
 }
 
 void QtEMC::jog_stop(int joint)
@@ -313,7 +313,7 @@ void QtEMC::jog_stop(int joint)
 
 void QtEMC::move(int axis, int speed)
 {
-    sendJogCont(axis, JOGTELEOP, 100.0 / speed);
+    sendJogCont(axis, JOGTELEOP, speed);
 }
 
 void QtEMC::move_stop(int axis)
