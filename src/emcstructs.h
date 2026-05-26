@@ -24,6 +24,7 @@ class QMachine : public QObject
 
     Q_PROPERTY(bool estop MEMBER m_estop NOTIFY sig_estop) bool m_estop;
     Q_PROPERTY(bool power MEMBER m_power NOTIFY sig_power) bool m_power;
+    Q_PROPERTY(bool menu MEMBER m_menu NOTIFY sig_menu) bool m_menu;
     Q_PROPERTY(int mode MEMBER m_mode NOTIFY sig_mode) int m_mode;
     Q_PROPERTY(int traj MEMBER m_traj NOTIFY sig_traj) int m_traj;
     Q_PROPERTY(double feed MEMBER m_feed NOTIFY sig_feed) double m_feed;
@@ -34,6 +35,7 @@ public:
 
     Q_SIGNAL void sig_estop(bool value);
     Q_SIGNAL void sig_power(bool value);
+    Q_SIGNAL void sig_menu(bool value);
     Q_SIGNAL void sig_mode(int value);
     Q_SIGNAL void sig_traj(int value);
     Q_SIGNAL void sig_feed(double value);

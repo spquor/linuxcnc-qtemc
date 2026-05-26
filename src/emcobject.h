@@ -24,6 +24,8 @@ public slots:
     void set_estop(bool value);
     void set_power(bool value);
 
+    void set_menu(bool value);
+
     void set_mode(int value);
     void set_traj(int value);
 

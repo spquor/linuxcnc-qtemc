@@ -13,9 +13,119 @@ ApplicationWindow {
     palette.window: "black"
     palette.windowText: "white"
 
-    readonly property int emcMaunal:    1
+    readonly property int emcMenu:      0
+    readonly property int emcManual:    1
     readonly property int emcAuto:      2
     readonly property int emcProgram:   3
+
+    readonly property var statenames: [
+        qsTr("MENU"),
+        qsTr("MANUAL"),
+        qsTr("EXECUTE"),
+        qsTr("PROGRAM")
+    ]
+
+    Item {
+        id: statemachine
+
+        state: {
+            if (emc.task.menu === true) return statenames[emcMenu]
+            if (emc.task.estop === true) return statenames[emcManual]
+            if (emc.task.mode === emcManual) return statenames[emcManual]
+            if (emc.task.mode === emcAuto) return statenames[emcAuto]
+            if (emc.task.mode === emcProgram) return statenames[emcProgram]
+            return {}
+        }
+
+        states: [
+            State {
+                name: statenames[emcManual]
+                PropertyChanges {
+                    target: btn1
+                    text: qsTr("SETTINGS")
+                    onClicked: emc.set_menu(true)
+                }
+                PropertyChanges {
+                    target: btn2
+                    text: qsTr("COMMAND")
+                    onClicked: emc.set_menu(true)
+                }
+                PropertyChanges {
+                    target: btn3
+                    enabled: !emc.task.estop
+                    text: qsTr("PROGRAM")
+                    onClicked: emc.set_mode(emcProgram)
+                }
+                PropertyChanges {
+                    target: btn4
+                    enabled: !emc.task.estop
+                    text: qsTr("EXECUTE")
+                    onClicked: emc.set_mode(emcAuto)
+                }
+            },
+            State {
+                name: statenames[emcAuto]
+                PropertyChanges {
+                    target: btn1
+                    text: qsTr("HOME")
+                    onClicked: emc.set_mode(emcManual)
+                }
+                PropertyChanges {
+                    target: btn2
+                    text: qsTr("START")
+                }
+                PropertyChanges {
+                    target: btn3
+                    text: qsTr("FORWARD")
+                }
+                PropertyChanges {
+                    target: btn4
+                    text: qsTr("PAUSE")
+                }
+            },
+            State {
+                name: statenames[emcProgram]
+                PropertyChanges {
+                    target: btn1
+                    text: qsTr("HOME")
+                    onClicked: emc.set_mode(emcManual)
+                }
+                PropertyChanges {
+                    target: btn2
+                    text: qsTr("FILE")
+                    onClicked: emc.set_menu(true)
+                }
+                PropertyChanges {
+                    target: btn3
+                    text: qsTr("MDI")
+                }
+                PropertyChanges {
+                    target: btn4
+                    text: qsTr("TEACH")
+                }
+            },
+            State {
+                name: statenames[emcMenu]
+                PropertyChanges {
+                    target: btn1
+                    text: qsTr("BACK")
+                    onClicked: emc.set_menu(false)
+                }
+                PropertyChanges {
+                    target: btn2
+                    text: qsTr("<<")
+                }
+                PropertyChanges {
+                    target: btn3
+                    text: qsTr(">>")
+                }
+                PropertyChanges {
+                    target: btn4
+                    text: qsTr("OK")
+                }
+            }
+        ]
+    }
 
     component CommandButton : RoundButton {
         font.pointSize: 12
@@ -33,6 +143,7 @@ ApplicationWindow {
             Label {
                 Layout.fillWidth: true
                 font.pointSize: 24
+                leftPadding: 32
 
                 background: Rectangle {
                     color: "gray"
@@ -44,7 +155,7 @@ ApplicationWindow {
 
             Label {
                 horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 256
                 font.pointSize: 24
 
                 background: Rectangle {
@@ -52,19 +163,12 @@ ApplicationWindow {
                     radius: 3
                 }
 
-                text: textmap[emc.task.mode]
-
-                readonly property var textmap: [
-                    qsTr(""),
-                    qsTr("JOG"),
-                    qsTr("AUTO"),
-                    qsTr("PROG")
-                ]
+                text: statemachine.state
             }
 
             Label {
                 horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 128
                 font.pointSize: 24
 
                 background: Rectangle {
@@ -77,7 +181,7 @@ ApplicationWindow {
 
             Label {
                 horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 128
                 font.pointSize: 24
 
                 background: Rectangle {
@@ -309,91 +413,11 @@ ApplicationWindow {
 
         RowLayout {
 
-            CommandButton {
-                text: qsTr("LinuxCNC v2.9")
-            }
-
-            CommandButton {
-                text: textmap[emc.task.mode]
-                onClicked: actions[emc.task.mode]()
-
-                readonly property var textmap: [
-                    qsTr(""),
-                    qsTr("SETTINGS"),
-                    qsTr("HOME"),
-                    qsTr("HOME")
-                ]
-
-                readonly property var actions: [
-                    function() { },
-                    function() { },
-                    function() { emc.set_mode(emcMaunal) },
-                    function() { emc.set_mode(emcMaunal) }
-                ]
-            }
-
-            CommandButton {
-                text: textmap[emc.task.mode]
-                onClicked: actions[emc.task.mode]()
-
-                enabled: !emc.task.estop
-
-                readonly property var textmap: [
-                    qsTr(""),
-                    qsTr("COMMAND"),
-                    qsTr("START"),
-                    qsTr("FILE")
-                ]
-
-                readonly property var actions: [
-                    function() { },
-                    function() { },
-                    function() { },
-                    function() { }
-                ]
-            }
-
-            CommandButton {
-                text: textmap[emc.task.mode]
-                onClicked: actions[emc.task.mode]()
-
-                enabled: !emc.task.estop
-
-                readonly property var textmap: [
-                    qsTr(""),
-                    qsTr("PROGRAM"),
-                    qsTr("FORWARD"),
-                    qsTr("MDI")
-                ]
-
-                readonly property var actions: [
-                    function() { },
-                    function() { emc.set_mode(emcProgram) },
-                    function() { },
-                    function() { }
-                ]
-            }
-
-            CommandButton {
-                text: textmap[emc.task.mode]
-                onClicked: actions[emc.task.mode]()
-
-                enabled: !emc.task.estop
-
-                readonly property var textmap: [
-                    qsTr(""),
-                    qsTr("EXECUTE"),
-                    qsTr("PAUSE"),
-                    qsTr("TEACH")
-                ]
-
-                readonly property var actions: [
-                    function() { },
-                    function() { emc.set_mode(emcAuto) },
-                    function() { },
-                    function() { }
-                ]
-            }
+            CommandButton { text: qsTr("LinuxCNC v2.9") }
+            CommandButton { id: btn1 }
+            CommandButton { id: btn2 }
+            CommandButton { id: btn3 }
+            CommandButton { id: btn4 }
 
         }
     }

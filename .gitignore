@@ -44,6 +44,9 @@
 # debug information files
 *.dwo
 
+# clangd config file
+compile_commands.json
+
 # Object file directory
 obj/
 

@@ -222,6 +222,17 @@ void QtEMC::set_power(bool value)
     emit task->sig_power(value);
 }
 
+void QtEMC::set_menu(bool value)
+{
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_menu == value)
+        return;
+
+    task->m_menu = value;
+    emit task->sig_menu(value);
+}
+
 void QtEMC::set_mode(int value)
 {
     QMachine* task = qobject_cast<QMachine*>(m_task);
