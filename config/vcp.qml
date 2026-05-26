@@ -18,114 +18,17 @@ ApplicationWindow {
     readonly property int emcAuto:      2
     readonly property int emcProgram:   3
 
+    readonly property int menuEdit:     0
+    readonly property int menuConfig:   1
+    readonly property int menuCommand:  2
+    readonly property int menuFile:     3
+
     readonly property var statenames: [
         qsTr("MENU"),
         qsTr("MANUAL"),
         qsTr("EXECUTE"),
         qsTr("PROGRAM")
     ]
-
-    Item {
-        id: statemachine
-
-        state: {
-            if (emc.task.menu === true) return statenames[emcMenu]
-            if (emc.task.estop === true) return statenames[emcManual]
-            if (emc.task.mode === emcManual) return statenames[emcManual]
-            if (emc.task.mode === emcAuto) return statenames[emcAuto]
-            if (emc.task.mode === emcProgram) return statenames[emcProgram]
-            return {}
-        }
-
-        states: [
-            State {
-                name: statenames[emcManual]
-                PropertyChanges {
-                    target: btn1
-                    text: qsTr("SETTINGS")
-                    onClicked: emc.set_menu(true)
-                }
-                PropertyChanges {
-                    target: btn2
-                    text: qsTr("COMMAND")
-                    onClicked: emc.set_menu(true)
-                }
-                PropertyChanges {
-                    target: btn3
-                    enabled: !emc.task.estop
-                    text: qsTr("PROGRAM")
-                    onClicked: emc.set_mode(emcProgram)
-                }
-                PropertyChanges {
-                    target: btn4
-                    enabled: !emc.task.estop
-                    text: qsTr("EXECUTE")
-                    onClicked: emc.set_mode(emcAuto)
-                }
-            },
-            State {
-                name: statenames[emcAuto]
-                PropertyChanges {
-                    target: btn1
-                    text: qsTr("HOME")
-                    onClicked: emc.set_mode(emcManual)
-                }
-                PropertyChanges {
-                    target: btn2
-                    text: qsTr("START")
-                }
-                PropertyChanges {
-                    target: btn3
-                    text: qsTr("FORWARD")
-                }
-                PropertyChanges {
-                    target: btn4
-                    text: qsTr("PAUSE")
-                }
-            },
-            State {
-                name: statenames[emcProgram]
-                PropertyChanges {
-                    target: btn1
-                    text: qsTr("HOME")
-                    onClicked: emc.set_mode(emcManual)
-                }
-                PropertyChanges {
-                    target: btn2
-                    text: qsTr("FILE")
-                    onClicked: emc.set_menu(true)
-                }
-                PropertyChanges {
-                    target: btn3
-                    text: qsTr("MDI")
-                }
-                PropertyChanges {
-                    target: btn4
-                    text: qsTr("TEACH")
-                }
-            },
-            State {
-                name: statenames[emcMenu]
-                PropertyChanges {
-                    target: btn1
-                    text: qsTr("BACK")
-                    onClicked: emc.set_menu(false)
-                }
-                PropertyChanges {
-                    target: btn2
-                    text: qsTr("<<")
-                }
-                PropertyChanges {
-                    target: btn3
-                    text: qsTr(">>")
-                }
-                PropertyChanges {
-                    target: btn4
-                    text: qsTr("OK")
-                }
-            }
-        ]
-    }
 
     component CommandButton : RoundButton {
         font.pointSize: 12
@@ -196,190 +99,220 @@ ApplicationWindow {
 
         RowLayout {
 
-            ScrollView {
-                clip: true
+            StackLayout {
+                id: menuLayout
+                currentIndex: 0
 
-                Layout.fillHeight: true
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 Layout.preferredWidth: 1
 
-                topPadding: 32
-                bottomPadding: 100
-                contentWidth: width
-
-                background: Rectangle {
-                    color: "gray"
-                    radius: 3
-                }
-
-                GridLayout {
-                    columns: 1
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - 64
-
-                    CommandButton {
-                        text: qsTr("ESTOP ON/OFF")
-
-                        onClicked: emc.set_estop(!emc.task.estop)
+                Label {
+                    background: Rectangle {
+                        color: "gray"
+                        radius: 3
                     }
 
-                    CommandButton {
-                        text: qsTr("POWER ON/OFF")
+                    TextEdit {
+                        font.pointSize: 14
+                        font.family: "monospace"
+                        wrapMode: TextEdit.Wrap
+                        color: "white"
 
-                        enabled: !emc.task.estop
-                        onClicked: emc.set_power(!emc.task.power)
+                        readOnly: emc.task.mode !== emcProgram
+
+                        anchors.fill: parent
+                        text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 333.66 C990.09"
                     }
 
-                    CommandButton {
-                        text: qsTr("JOG X FORWARD")
-
-                        enabled: emc.task.power
-                        onPressed: emc.jog(0, +100)
-                        onReleased: emc.jog_stop(0)
-                        onCanceled: emc.jog_stop(0)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG X BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(0, -100)
-                        onReleased: emc.jog_stop(0)
-                        onCanceled: emc.jog_stop(0)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Y FORWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(1, +100)
-                        onReleased: emc.jog_stop(1)
-                        onCanceled: emc.jog_stop(1)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Y BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(1, -100)
-                        onReleased: emc.jog_stop(1)
-                        onCanceled: emc.jog_stop(1)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Z FORWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(2, +100)
-                        onReleased: emc.jog_stop(2)
-                        onCanceled: emc.jog_stop(2)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Z BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(2, -100)
-                        onReleased: emc.jog_stop(2)
-                        onCanceled: emc.jog_stop(2)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG A FORWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(3, +100)
-                        onReleased: emc.jog_stop(3)
-                        onCanceled: emc.jog_stop(3)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG A BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(3, -100)
-                        onReleased: emc.jog_stop(3)
-                        onCanceled: emc.jog_stop(3)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG B FORWARD")
-                        Layout.fillWidth: true
-
-                        font.pointSize: 12
-                        radius: 8
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(4, +100)
-                        onReleased: emc.jog_stop(4)
-                        onCanceled: emc.jog_stop(4)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG B BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(4, -100)
-                        onReleased: emc.jog_stop(4)
-                        onCanceled: emc.jog_stop(4)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG C FORWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(5, +100)
-                        onReleased: emc.jog_stop(5)
-                        onCanceled: emc.jog_stop(5)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG C BACKWARD")
-
-                        enabled: emc.task.power
-
-                        onPressed: emc.jog(5, -100)
-                        onReleased: emc.jog_stop(5)
-                        onCanceled: emc.jog_stop(5)
+                    InputPanel {
+                        y: parent.height - height
+                        width: parent.width
+                        visible: active
                     }
                 }
-            }
 
-            Label {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.preferredWidth: 1
+                ScrollView {
+                    clip: true
+                    contentWidth: width
 
-                background: Rectangle {
-                    color: "gray"
-                    radius: 3
+                    topPadding: 32
+                    bottomPadding: 100
+
+                    background: Rectangle {
+                        color: "gray"
+                        radius: 3
+                    }
                 }
 
-                TextEdit {
-                    font.pointSize: 14
-                    font.family: "monospace"
-                    wrapMode: TextEdit.Wrap
-                    color: "white"
+                ScrollView {
+                    clip: true
+                    contentWidth: width
 
-                    anchors.fill: parent
-                    text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 333.66 C990.09"
+                    topPadding: 32
+                    bottomPadding: 100
+
+                    background: Rectangle {
+                        color: "gray"
+                        radius: 3
+                    }
+
+                    GridLayout {
+                        columns: 1
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width - 64
+
+                        CommandButton {
+                            text: qsTr("ESTOP ON/OFF")
+
+                            onClicked: emc.set_estop(!emc.task.estop)
+                        }
+
+                        CommandButton {
+                            text: qsTr("POWER ON/OFF")
+
+                            enabled: !emc.task.estop
+                            onClicked: emc.set_power(!emc.task.power)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG X FORWARD")
+
+                            enabled: emc.task.power
+                            onPressed: emc.jog(0, +100)
+                            onReleased: emc.jog_stop(0)
+                            onCanceled: emc.jog_stop(0)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG X BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(0, -100)
+                            onReleased: emc.jog_stop(0)
+                            onCanceled: emc.jog_stop(0)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG Y FORWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(1, +100)
+                            onReleased: emc.jog_stop(1)
+                            onCanceled: emc.jog_stop(1)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG Y BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(1, -100)
+                            onReleased: emc.jog_stop(1)
+                            onCanceled: emc.jog_stop(1)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG Z FORWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(2, +100)
+                            onReleased: emc.jog_stop(2)
+                            onCanceled: emc.jog_stop(2)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG Z BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(2, -100)
+                            onReleased: emc.jog_stop(2)
+                            onCanceled: emc.jog_stop(2)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG A FORWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(3, +100)
+                            onReleased: emc.jog_stop(3)
+                            onCanceled: emc.jog_stop(3)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG A BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(3, -100)
+                            onReleased: emc.jog_stop(3)
+                            onCanceled: emc.jog_stop(3)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG B FORWARD")
+                            Layout.fillWidth: true
+
+                            font.pointSize: 12
+                            radius: 8
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(4, +100)
+                            onReleased: emc.jog_stop(4)
+                            onCanceled: emc.jog_stop(4)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG B BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(4, -100)
+                            onReleased: emc.jog_stop(4)
+                            onCanceled: emc.jog_stop(4)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG C FORWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(5, +100)
+                            onReleased: emc.jog_stop(5)
+                            onCanceled: emc.jog_stop(5)
+                        }
+
+                        CommandButton {
+                            text: qsTr("JOG C BACKWARD")
+
+                            enabled: emc.task.power
+
+                            onPressed: emc.jog(5, -100)
+                            onReleased: emc.jog_stop(5)
+                            onCanceled: emc.jog_stop(5)
+                        }
+                    }
                 }
 
-                InputPanel {
-                    y: parent.height - height
-                    width: parent.width
-                    visible: active
+                ScrollView {
+                    clip: true
+                    contentWidth: width
+
+                    topPadding: 32
+                    bottomPadding: 100
+
+                    background: Rectangle {
+                        color: "gray"
+                        radius: 3
+                    }
                 }
+
             }
 
             Label {
@@ -412,6 +345,118 @@ ApplicationWindow {
         }
 
         RowLayout {
+
+            id: statemachine
+
+            state: {
+                if (emc.task.menu   === true)       return statenames[emcMenu]
+                if (emc.task.estop  === true)       return statenames[emcManual]
+                if (emc.task.mode   === emcManual)  return statenames[emcManual]
+                if (emc.task.mode   === emcAuto)    return statenames[emcAuto]
+                if (emc.task.mode   === emcProgram) return statenames[emcProgram]
+                return null
+            }
+
+            states: [
+                State {
+                    name: statenames[emcManual]
+                    PropertyChanges {
+                        target: btn1
+                        text: qsTr("SETTINGS")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = menuConfig
+                        }
+                    }
+                    PropertyChanges {
+                        target: btn2
+                        text: qsTr("COMMAND")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = menuCommand
+                        }
+                    }
+                    PropertyChanges {
+                        target: btn3
+                        enabled: !emc.task.estop
+                        text: qsTr("PROGRAM")
+                        onClicked: emc.set_mode(emcProgram)
+                    }
+                    PropertyChanges {
+                        target: btn4
+                        enabled: !emc.task.estop
+                        text: qsTr("EXECUTE")
+                        onClicked: emc.set_mode(emcAuto)
+                    }
+                },
+                State {
+                    name: statenames[emcAuto]
+                    PropertyChanges {
+                        target: btn1
+                        text: qsTr("BACK")
+                        onClicked: emc.set_mode(emcManual)
+                    }
+                    PropertyChanges {
+                        target: btn2
+                        text: qsTr("START")
+                    }
+                    PropertyChanges {
+                        target: btn3
+                        text: qsTr("FORWARD")
+                    }
+                    PropertyChanges {
+                        target: btn4
+                        text: qsTr("PAUSE")
+                    }
+                },
+                State {
+                    name: statenames[emcProgram]
+                    PropertyChanges {
+                        target: btn1
+                        text: qsTr("BACK")
+                        onClicked: emc.set_mode(emcManual)
+                    }
+                    PropertyChanges {
+                        target: btn2
+                        text: qsTr("FILE")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = menuFile
+                        }
+                    }
+                    PropertyChanges {
+                        target: btn3
+                        text: qsTr("MDI")
+                    }
+                    PropertyChanges {
+                        target: btn4
+                        text: qsTr("TEACH")
+                    }
+                },
+                State {
+                    name: statenames[emcMenu]
+                    PropertyChanges {
+                        target: btn1
+                        text: qsTr("BACK")
+                        onClicked: {
+                            emc.set_menu(false)
+                            menuLayout.currentIndex = 0
+                        }
+                    }
+                    PropertyChanges {
+                        target: btn2
+                        text: qsTr("<<")
+                    }
+                    PropertyChanges {
+                        target: btn3
+                        text: qsTr(">>")
+                    }
+                    PropertyChanges {
+                        target: btn4
+                        text: qsTr("SELECT")
+                    }
+                }
+            ]
 
             CommandButton { text: qsTr("LinuxCNC v2.9") }
             CommandButton { id: btn1 }
