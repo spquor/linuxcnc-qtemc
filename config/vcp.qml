@@ -25,73 +25,85 @@ ApplicationWindow {
 
     readonly property var statenames: [
         qsTr("MENU"),
-        qsTr("MANUAL"),
-        qsTr("EXECUTE"),
-        qsTr("PROGRAM")
+        qsTr("JOG"),
+        qsTr("AUTO"),
+        qsTr("PROG")
     ]
 
+    component IndicationLabel : Label {
+        font.pointSize: 30
+        background: Rectangle {
+            color: "gray"
+            radius: 3
+        }
+        horizontalAlignment: Label.AlignHCenter
+        verticalAlignment: Label.AlignVCenter
+        Layout.preferredWidth: 164
+        Layout.preferredHeight: 64
+    }
+
+    component ScrollableMenu : ScrollView {
+        clip: true
+        contentWidth: width
+        topPadding: 32
+        bottomPadding: 100
+        background: Rectangle {
+            color: "gray"
+            radius: 3
+        }
+        default property alias __gridLayout: innerLayout.children
+        GridLayout {
+            id: innerLayout
+            columns: 1
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width - 64
+        }
+    }
+
     component CommandButton : RoundButton {
-        font.pointSize: 12
+        font.pointSize: 20
         radius: 8
         Layout.fillWidth: true
+        Layout.fillHeight: false
         Layout.preferredWidth: 1
+        Layout.preferredHeight: 64
     }
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 4
 
+        // transform: Scale {
+        //     xScale: 0.5
+        //     yScale: 0.5
+        // }
+
         RowLayout {
 
-            Label {
-                Layout.fillWidth: true
-                font.pointSize: 24
+            IndicationLabel {
+                horizontalAlignment: Label.AlignLeft
                 leftPadding: 32
-
-                background: Rectangle {
-                    color: "gray"
-                    radius: 3
-                }
-
+                Layout.fillWidth: true
                 text: emc.info.machine + " v." + emc.info.version
             }
 
-            Label {
-                horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 256
-                font.pointSize: 24
-
-                background: Rectangle {
-                    color: "gray"
-                    radius: 3
-                }
-
+            IndicationLabel {
                 text: statemachine.state
             }
 
-            Label {
-                horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 128
-                font.pointSize: 24
-
+            IndicationLabel {
                 background: Rectangle {
                     color: emc.task.power ? "green" : "gray"
                     radius: 3
                 }
-
                 text: qsTr("POWER")
             }
 
-            Label {
-                horizontalAlignment: Label.AlignHCenter
-                Layout.preferredWidth: 128
-                font.pointSize: 24
-
+            IndicationLabel {
                 background: Rectangle {
                     color: emc.task.estop ? "red" : "gray"
                     radius: 3
                 }
-
                 text: qsTr("E-STOP")
             }
 
@@ -114,7 +126,7 @@ ApplicationWindow {
                     }
 
                     TextEdit {
-                        font.pointSize: 14
+                        font.pointSize: 20
                         font.family: "monospace"
                         wrapMode: TextEdit.Wrap
                         color: "white"
@@ -122,7 +134,7 @@ ApplicationWindow {
                         readOnly: emc.task.mode !== emcProgram
 
                         anchors.fill: parent
-                        text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 333.66 C990.09"
+                        text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 B333.66 C990.09"
                     }
 
                     InputPanel {
@@ -132,184 +144,159 @@ ApplicationWindow {
                     }
                 }
 
-                ScrollView {
-                    clip: true
-                    contentWidth: width
+                ScrollableMenu {
 
-                    topPadding: 32
-                    bottomPadding: 100
+                    CommandButton {
+                        text: qsTr("TEACH G COMMAND")
+                    }
 
-                    background: Rectangle {
-                        color: "gray"
-                        radius: 3
+                    CommandButton {
+                        text: qsTr("JOG MAX SPEED")
+                    }
+
+                    CommandButton {
+                        text: qsTr("SPINDLE MAX SPEED")
+                    }
+
+                    CommandButton {
+                        text: qsTr("FEED OVERRIDE")
+                    }
+
+                    CommandButton {
+                        text: qsTr("RAPID OVERRIDE")
+                    }
+
+                    CommandButton {
+                        text: qsTr("JOYSTICK CONTROL")
                     }
                 }
 
-                ScrollView {
-                    clip: true
-                    contentWidth: width
+                ScrollableMenu {
 
-                    topPadding: 32
-                    bottomPadding: 100
-
-                    background: Rectangle {
-                        color: "gray"
-                        radius: 3
+                    CommandButton {
+                        text: qsTr("ESTOP ON/OFF")
+                        onClicked: emc.set_estop(!emc.task.estop)
                     }
 
-                    GridLayout {
-                        columns: 1
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        width: parent.width - 64
+                    CommandButton {
+                        text: qsTr("POWER ON/OFF")
+                        enabled: !emc.task.estop
+                        onClicked: emc.set_power(!emc.task.power)
+                    }
 
-                        CommandButton {
-                            text: qsTr("ESTOP ON/OFF")
+                    CommandButton {
+                        text: qsTr("JOG X FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(0, +100)
+                        onReleased: emc.jog_stop(0)
+                        onCanceled: emc.jog_stop(0)
+                    }
 
-                            onClicked: emc.set_estop(!emc.task.estop)
-                        }
+                    CommandButton {
+                        text: qsTr("JOG X BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(0, -100)
+                        onReleased: emc.jog_stop(0)
+                        onCanceled: emc.jog_stop(0)
+                    }
 
-                        CommandButton {
-                            text: qsTr("POWER ON/OFF")
+                    CommandButton {
+                        text: qsTr("JOG Y FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(1, +100)
+                        onReleased: emc.jog_stop(1)
+                        onCanceled: emc.jog_stop(1)
+                    }
 
-                            enabled: !emc.task.estop
-                            onClicked: emc.set_power(!emc.task.power)
-                        }
+                    CommandButton {
+                        text: qsTr("JOG Y BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(1, -100)
+                        onReleased: emc.jog_stop(1)
+                        onCanceled: emc.jog_stop(1)
+                    }
 
-                        CommandButton {
-                            text: qsTr("JOG X FORWARD")
+                    CommandButton {
+                        text: qsTr("JOG Z FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(2, +100)
+                        onReleased: emc.jog_stop(2)
+                        onCanceled: emc.jog_stop(2)
+                    }
 
-                            enabled: emc.task.power
-                            onPressed: emc.jog(0, +100)
-                            onReleased: emc.jog_stop(0)
-                            onCanceled: emc.jog_stop(0)
-                        }
+                    CommandButton {
+                        text: qsTr("JOG Z BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(2, -100)
+                        onReleased: emc.jog_stop(2)
+                        onCanceled: emc.jog_stop(2)
+                    }
 
-                        CommandButton {
-                            text: qsTr("JOG X BACKWARD")
+                    CommandButton {
+                        text: qsTr("JOG A FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(3, +100)
+                        onReleased: emc.jog_stop(3)
+                        onCanceled: emc.jog_stop(3)
+                    }
 
-                            enabled: emc.task.power
+                    CommandButton {
+                        text: qsTr("JOG A BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(3, -100)
+                        onReleased: emc.jog_stop(3)
+                        onCanceled: emc.jog_stop(3)
+                    }
 
-                            onPressed: emc.jog(0, -100)
-                            onReleased: emc.jog_stop(0)
-                            onCanceled: emc.jog_stop(0)
-                        }
+                    CommandButton {
+                        text: qsTr("JOG B FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(4, +100)
+                        onReleased: emc.jog_stop(4)
+                        onCanceled: emc.jog_stop(4)
+                    }
 
-                        CommandButton {
-                            text: qsTr("JOG Y FORWARD")
+                    CommandButton {
+                        text: qsTr("JOG B BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(4, -100)
+                        onReleased: emc.jog_stop(4)
+                        onCanceled: emc.jog_stop(4)
+                    }
 
-                            enabled: emc.task.power
+                    CommandButton {
+                        text: qsTr("JOG C FORWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(5, +100)
+                        onReleased: emc.jog_stop(5)
+                        onCanceled: emc.jog_stop(5)
+                    }
 
-                            onPressed: emc.jog(1, +100)
-                            onReleased: emc.jog_stop(1)
-                            onCanceled: emc.jog_stop(1)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG Y BACKWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(1, -100)
-                            onReleased: emc.jog_stop(1)
-                            onCanceled: emc.jog_stop(1)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG Z FORWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(2, +100)
-                            onReleased: emc.jog_stop(2)
-                            onCanceled: emc.jog_stop(2)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG Z BACKWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(2, -100)
-                            onReleased: emc.jog_stop(2)
-                            onCanceled: emc.jog_stop(2)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG A FORWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(3, +100)
-                            onReleased: emc.jog_stop(3)
-                            onCanceled: emc.jog_stop(3)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG A BACKWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(3, -100)
-                            onReleased: emc.jog_stop(3)
-                            onCanceled: emc.jog_stop(3)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG B FORWARD")
-                            Layout.fillWidth: true
-
-                            font.pointSize: 12
-                            radius: 8
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(4, +100)
-                            onReleased: emc.jog_stop(4)
-                            onCanceled: emc.jog_stop(4)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG B BACKWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(4, -100)
-                            onReleased: emc.jog_stop(4)
-                            onCanceled: emc.jog_stop(4)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG C FORWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(5, +100)
-                            onReleased: emc.jog_stop(5)
-                            onCanceled: emc.jog_stop(5)
-                        }
-
-                        CommandButton {
-                            text: qsTr("JOG C BACKWARD")
-
-                            enabled: emc.task.power
-
-                            onPressed: emc.jog(5, -100)
-                            onReleased: emc.jog_stop(5)
-                            onCanceled: emc.jog_stop(5)
-                        }
+                    CommandButton {
+                        text: qsTr("JOG C BACKWARD")
+                        enabled: emc.task.power
+                        onPressed: emc.jog(5, -100)
+                        onReleased: emc.jog_stop(5)
+                        onCanceled: emc.jog_stop(5)
                     }
                 }
 
-                ScrollView {
-                    clip: true
-                    contentWidth: width
+                ScrollableMenu {
 
-                    topPadding: 32
-                    bottomPadding: 100
+                    CommandButton {
+                        text: qsTr("INSPECT")
+                    }
 
-                    background: Rectangle {
-                        color: "gray"
-                        radius: 3
+                    CommandButton {
+                        text: qsTr("SAVE")
+                    }
+
+                    CommandButton {
+                        text: qsTr("LOAD")
+                    }
+
+                    CommandButton {
+                        text: qsTr("DELETE")
                     }
                 }
 
@@ -320,9 +307,8 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
 
-                font.pointSize: 32
+                font.pointSize: 40
                 font.family: "monospace"
-
                 background: Rectangle {
                     color: "gray"
                     radius: 3
@@ -331,7 +317,7 @@ ApplicationWindow {
                 GridLayout {
                     columns: 1
                     anchors.fill: parent
-                    anchors.margins: 100
+                    anchors.margins: 64
 
                     Label { text: `X: ${emc.joint(0).position.toFixed(2)}` }
                     Label { text: `Y: ${emc.joint(1).position.toFixed(2)}` }
