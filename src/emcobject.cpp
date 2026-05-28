@@ -174,8 +174,8 @@ void QtEMC::timerEvent(QTimerEvent *event)
     set_estop(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ESTOP);
     set_power(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ON);
 
+    set_stat(static_cast<int>(emcStatus->task.status));
     set_mode(static_cast<int>(emcStatus->task.mode));
-    // set_traj(static_cast<int>(emcStatus->task.traj));
 
     for(int j = 0; j < m_motion.size(); ++j)
     {
@@ -231,6 +231,17 @@ void QtEMC::set_menu(bool value)
 
     task->m_menu = value;
     emit task->sig_menu(value);
+}
+
+void QtEMC::set_stat(int value)
+{
+    QMachine* task = qobject_cast<QMachine*>(m_task);
+
+    if (!task || task->m_stat == value)
+        return;
+
+    task->m_stat = value;
+    emit task->sig_stat(value);
 }
 
 void QtEMC::set_mode(int value)

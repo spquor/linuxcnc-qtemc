@@ -13,15 +13,22 @@ ApplicationWindow {
     palette.window: "black"
     palette.windowText: "white"
 
+    readonly property int rcsUnknown:  -1
+    readonly property int rcsDone:      1
+    readonly property int rcsExec:      2
+    readonly property int rcsError:     3
+
+    readonly property var statusnames: [
+        qsTr("UNKNOWN"),
+        qsTr("DONE"),
+        qsTr("EXEC"),
+        qsTr("ALARM")
+    ]
+
     readonly property int emcMenu:      0
     readonly property int emcManual:    1
     readonly property int emcAuto:      2
     readonly property int emcProgram:   3
-
-    readonly property int menuEdit:     0
-    readonly property int menuConfig:   1
-    readonly property int menuCommand:  2
-    readonly property int menuFile:     3
 
     readonly property var statenames: [
         qsTr("MENU"),
@@ -29,6 +36,11 @@ ApplicationWindow {
         qsTr("AUTO"),
         qsTr("PROG")
     ]
+
+    readonly property int menuEdit:     0
+    readonly property int menuConfig:   1
+    readonly property int menuCommand:  2
+    readonly property int menuFile:     3
 
     component IndicationLabel : Label {
         font.pointSize: 30
@@ -85,6 +97,14 @@ ApplicationWindow {
                 leftPadding: 32
                 Layout.fillWidth: true
                 text: emc.info.machine + " v." + emc.info.version
+            }
+
+            IndicationLabel {
+                background: Rectangle {
+                    color: emc.task.stat == rcsError ? "red" : "gray"
+                    radius: 3
+                }
+                text: statusnames[emc.task.stat]
             }
 
             IndicationLabel {
