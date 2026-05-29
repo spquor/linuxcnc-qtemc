@@ -153,8 +153,24 @@ ApplicationWindow {
 
                         readOnly: emc.task.mode !== emcProgram
 
+                        FontMetrics {
+                            id: metrics
+                        }
+
+                        Rectangle {
+                            visible: true
+                            z: 1
+                            color: "lightyellow"
+                            opacity: 0.5
+
+                            x: parent.x
+                            y: parent.y + emc.prog.linenum * metrics.height * 2
+                            width: parent.width
+                            height: metrics.height * 2
+                        }
+
                         anchors.fill: parent
-                        text: "G00 X9000.00 Y2222.88 Z6500.77 A121.11 B333.66 C990.09"
+                        text: emc.prog.text
                     }
 
                     InputPanel {
@@ -205,6 +221,12 @@ ApplicationWindow {
                     }
 
                     CommandButton {
+                        text: qsTr("HOME X AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(0, true)
+                    }
+
+                    CommandButton {
                         text: qsTr("JOG X FORWARD")
                         enabled: emc.task.power
                         onPressed: emc.jog(0, +100)
@@ -218,6 +240,12 @@ ApplicationWindow {
                         onPressed: emc.jog(0, -100)
                         onReleased: emc.jog_stop(0)
                         onCanceled: emc.jog_stop(0)
+                    }
+
+                    CommandButton {
+                        text: qsTr("HOME Y AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(1, true)
                     }
 
                     CommandButton {
@@ -237,6 +265,12 @@ ApplicationWindow {
                     }
 
                     CommandButton {
+                        text: qsTr("HOME Z AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(2, true)
+                    }
+
+                    CommandButton {
                         text: qsTr("JOG Z FORWARD")
                         enabled: emc.task.power
                         onPressed: emc.jog(2, +100)
@@ -250,6 +284,12 @@ ApplicationWindow {
                         onPressed: emc.jog(2, -100)
                         onReleased: emc.jog_stop(2)
                         onCanceled: emc.jog_stop(2)
+                    }
+
+                    CommandButton {
+                        text: qsTr("HOME A AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(3, true)
                     }
 
                     CommandButton {
@@ -269,6 +309,12 @@ ApplicationWindow {
                     }
 
                     CommandButton {
+                        text: qsTr("HOME B AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(4, true)
+                    }
+
+                    CommandButton {
                         text: qsTr("JOG B FORWARD")
                         enabled: emc.task.power
                         onPressed: emc.jog(4, +100)
@@ -282,6 +328,12 @@ ApplicationWindow {
                         onPressed: emc.jog(4, -100)
                         onReleased: emc.jog_stop(4)
                         onCanceled: emc.jog_stop(4)
+                    }
+
+                    CommandButton {
+                        text: qsTr("HOME C AXIS")
+                        enabled: emc.task.power
+                        onClicked: emc.set_home(5, true)
                     }
 
                     CommandButton {
@@ -405,14 +457,18 @@ ApplicationWindow {
                     PropertyChanges {
                         target: btn2
                         text: qsTr("START")
+                        onClicked: emc.prog_command(1)
                     }
                     PropertyChanges {
                         target: btn3
-                        text: qsTr("FORWARD")
+                        text: qsTr("ABORT")
+                        onClicked: emc.prog_abort()
                     }
                     PropertyChanges {
                         target: btn4
-                        text: qsTr("PAUSE")
+                        checkable: true
+                        text: !emc.prog.suspend ? qsTr("PAUSE") : qsTr("RESUME")
+                        onClicked: !emc.prog.suspend ? emc.prog_command(2) : emc.prog_command(3)
                     }
                 },
                 State {

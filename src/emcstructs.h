@@ -67,4 +67,32 @@ public:
     friend class QtEMC;
 };
 
+class QProgram : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QString name MEMBER m_name NOTIFY sig_name) QString m_name;
+    Q_PROPERTY(QString text MEMBER m_text NOTIFY sig_text) QString m_text;
+    Q_PROPERTY(int linenum MEMBER m_linenum NOTIFY sig_linenum) int m_linenum;
+    Q_PROPERTY(int suspend MEMBER m_suspend NOTIFY sig_suspend) int m_suspend;
+    Q_PROPERTY(bool optstop MEMBER m_optstop NOTIFY sig_optstop) bool m_optstop;
+    Q_PROPERTY(bool blockrm MEMBER m_blockrm NOTIFY sig_blockrm) bool m_blockrm;
+    Q_PROPERTY(QStringList gcodes MEMBER m_gcodes NOTIFY sig_gcodes) QStringList m_gcodes;
+    Q_PROPERTY(QStringList mcodes MEMBER m_mcodes NOTIFY sig_mcodes) QStringList m_mcodes;
+
+public:
+    explicit QProgram(QObject *parent) : QObject(parent) {}
+
+    Q_SIGNAL void sig_name(QString);
+    Q_SIGNAL void sig_text(QString);
+    Q_SIGNAL void sig_linenum(int);
+    Q_SIGNAL void sig_suspend(int);
+    Q_SIGNAL void sig_optstop(bool);
+    Q_SIGNAL void sig_blockrm(bool);
+    Q_SIGNAL void sig_gcodes(QStringList);
+    Q_SIGNAL void sig_mcodes(QStringList);
+
+    friend class QtEMC;
+};
+
 #endif // EMCSTRUCTS_H

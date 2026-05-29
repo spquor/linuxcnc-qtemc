@@ -11,7 +11,7 @@ class QtEMC : public QObject
 
     Q_PROPERTY(QObject* info MEMBER m_info CONSTANT) QObject* m_info;
     Q_PROPERTY(QObject* task MEMBER m_task CONSTANT) QObject* m_task;
-
+    Q_PROPERTY(QObject* prog MEMBER m_prog CONSTANT) QObject* m_prog;
     Q_PROPERTY(QObjectList motion MEMBER m_motion CONSTANT) QObjectList m_motion;
 
 public:
@@ -28,6 +28,9 @@ public slots:
     void set_mode(int value);
     void set_traj(int value);
 
+    void set_optstop(bool value);
+    void set_blockrm(bool value);
+
     void override_feed(double value);
     void override_rapid(double value);
 
@@ -39,6 +42,12 @@ public slots:
 
     void move(int axis, int speed);
     void move_stop(int axis);
+
+    void prog_open(QString path);
+    void prog_command(int cmd);
+
+    void task_init();
+    void task_abort();
 
 protected:
     void timerEvent(QTimerEvent *event);

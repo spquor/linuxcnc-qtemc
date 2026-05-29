@@ -2,7 +2,7 @@
 
 #include <QSettings>
 #include <QTimerEvent>
-
+#include <QFile>
 #include <QDebug>
 
 #include "emcglb.h"
@@ -44,6 +44,7 @@ void QtEMC::thisInit()
 
     m_info = new QEmcInfo(this);
     m_task = new QMachine(this);
+    m_prog = new QProgram(this);
 
     for (int j = 0; j < EMCMOT_MAX_JOINTS; ++j)
         m_motion.append(new QJoint(this));
@@ -141,6 +142,9 @@ int QtEMC::initEMC(int argc, char *argv[])
     info->m_machine = ini.value("EMC/MACHINE", "QtEMC").toString();
     info->m_version = ini.value("EMC/VERSION", "QtEMC").toString();
 
+    prog_open(ini.value("DISPLAY/PROGRAM_PREFIX").toString() +
+        ini.value("DISPLAY/OPEN_FILE").toString());
+
     // get cycle time, and setup operator interface update timer
     syncTimerId = startTimer(ini.value("DISPLAY/CYCLE_TIME").toReal() * 1000);
     emcTimeout = 0.0;
@@ -176,6 +180,30 @@ void QtEMC::timerEvent(QTimerEvent *event)
 
     set_stat(static_cast<int>(emcStatus->task.status));
     set_mode(static_cast<int>(emcStatus->task.mode));
+
+    set_optstop(emcStatus->task.optional_stop_state);
+    set_blockrm(emcStatus->task.block_delete_state);
+
+    {
+        QProgram *prog = qobject_cast<QProgram *>(m_prog);
+
+        prog->m_linenum = emcStatus->task.currentLine;
+        prog->m_suspend = emcStatus->task.task_paused;
+
+        emit prog->sig_linenum(prog->m_linenum);
+        emit prog->sig_suspend(prog->m_suspend);
+
+        prog->m_gcodes.clear(); //slow??
+        for(int gcode : emcStatus->task.activeGCodes)
+            prog->m_gcodes << QString::number(gcode);
+
+        prog->m_mcodes.clear(); //slow??
+        for(int mcode : emcStatus->task.activeMCodes)
+            prog->m_mcodes << QString::number(mcode);
+
+        emit prog->sig_gcodes(prog->m_gcodes);
+        emit prog->sig_mcodes(prog->m_mcodes);
+    }
 
     for(int j = 0; j < m_motion.size(); ++j)
     {
@@ -284,6 +312,32 @@ void QtEMC::set_traj(int value)
     emit task->sig_traj(value);
 }
 
+void QtEMC::set_optstop(bool value)
+{
+    QProgram* prog = qobject_cast<QProgram*>(m_prog);
+
+    if (!prog || prog->m_optstop == value)
+        return;
+
+    sendSetOptionalStop(value);
+
+    prog->m_optstop = value;
+    emit prog->sig_optstop(value);
+}
+
+void QtEMC::set_blockrm(bool value)
+{
+    QProgram* prog = qobject_cast<QProgram*>(m_prog);
+
+    if (!prog || prog->m_blockrm == value)
+        return;
+
+    // send(value);
+
+    prog->m_blockrm = value;
+    emit prog->sig_blockrm(value);
+}
+
 void QtEMC::override_feed(double value)
 {
     QMachine* task = qobject_cast<QMachine*>(m_task);
@@ -341,4 +395,59 @@ void QtEMC::move(int axis, int speed)
 void QtEMC::move_stop(int axis)
 {
     sendJogStop(axis, JOGTELEOP);
+}
+
+void QtEMC::prog_open(QString path)
+{
+    QByteArray ba = path.toLocal8Bit();
+    char *cpath = new char[ba.size() + 1];
+    strcpy(cpath, ba.data());
+    sendProgramOpen(cpath);
+
+    QFile file = QFile(path);
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QProgram* prog = qobject_cast<QProgram*>(m_prog);
+        const QString text = file.readAll();
+
+        prog->m_name = path;
+        prog->m_text = text;
+
+        emit prog->sig_name(path);
+        emit prog->sig_text(text);
+    }
+}
+
+void QtEMC::prog_command(int cmd)
+{
+    switch (cmd)
+    {
+    case 0:
+        sendProgramRun(0);
+        break;
+    case 1:
+        sendProgramRun(1);
+        break;
+    case 2:
+        sendProgramPause();
+        break;
+    case 3:
+        sendProgramResume();
+        break;
+    case 4:
+        sendProgramStep();
+        break;
+    default:
+        break;
+    }
+}
+
+void QtEMC::task_init()
+{
+    sendTaskPlanInit();
+}
+
+void QtEMC::task_abort()
+{
+    sendAbort();
 }
