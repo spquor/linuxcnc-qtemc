@@ -42,6 +42,8 @@ void QtEMC::thisInit()
 
     // init qml structures
 
+    m_enums = new QEmcEnums(this);
+
     m_info = new QEmcInfo(this);
     m_task = new QMachine(this);
     m_prog = new QProgram(this);
@@ -129,6 +131,24 @@ int QtEMC::initEMC(int argc, char *argv[])
         thisQuit();
         return -1;
     }
+
+    // init state enum constants
+    QEmcEnums *enums = qobject_cast<QEmcEnums *>(m_enums);
+
+    enums->m_statusUnknown = RCS_STATUS::UNINITIALIZED_STATUS;
+    enums->m_statusDone = RCS_STATUS::RCS_DONE;
+    enums->m_statusExec = RCS_STATUS::RCS_EXEC;
+    enums->m_statusError = RCS_STATUS::RCS_ERROR;
+
+    enums->m_stateMenu = 0;
+    enums->m_stateManual = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MANUAL;
+    enums->m_stateAuto = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_AUTO;
+    enums->m_stateProgram = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MDI;
+
+    enums->m_menuEdit = 0;
+    enums->m_menuSettings = 1;
+    enums->m_menuCommand = 2;
+    enums->m_menuFile = 3;
 
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface

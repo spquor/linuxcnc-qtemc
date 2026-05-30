@@ -9,6 +9,7 @@ class QtEMC : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QObject* enums MEMBER m_enums CONSTANT) QObject* m_enums;
     Q_PROPERTY(QObject* info MEMBER m_info CONSTANT) QObject* m_info;
     Q_PROPERTY(QObject* task MEMBER m_task CONSTANT) QObject* m_task;
     Q_PROPERTY(QObject* prog MEMBER m_prog CONSTANT) QObject* m_prog;

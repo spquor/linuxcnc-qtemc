@@ -13,11 +13,6 @@ ApplicationWindow {
     palette.window: "black"
     palette.windowText: "white"
 
-    readonly property int rcsUnknown:  -1
-    readonly property int rcsDone:      1
-    readonly property int rcsExec:      2
-    readonly property int rcsError:     3
-
     readonly property var statusnames: [
         qsTr("UNKNOWN"),
         qsTr("DONE"),
@@ -25,22 +20,12 @@ ApplicationWindow {
         qsTr("ALARM")
     ]
 
-    readonly property int emcMenu:      0
-    readonly property int emcManual:    1
-    readonly property int emcAuto:      2
-    readonly property int emcProgram:   3
-
     readonly property var statenames: [
         qsTr("MENU"),
         qsTr("JOG"),
         qsTr("AUTO"),
         qsTr("PROG")
     ]
-
-    readonly property int menuEdit:     0
-    readonly property int menuConfig:   1
-    readonly property int menuCommand:  2
-    readonly property int menuFile:     3
 
     component IndicationLabel : Label {
         font.pointSize: 30
@@ -51,6 +36,15 @@ ApplicationWindow {
         horizontalAlignment: Label.AlignHCenter
         verticalAlignment: Label.AlignVCenter
         Layout.preferredWidth: 164
+        Layout.preferredHeight: 64
+    }
+
+    component CommandButton : RoundButton {
+        font.pointSize: 20
+        radius: 8
+        Layout.fillWidth: true
+        Layout.fillHeight: false
+        Layout.preferredWidth: 1
         Layout.preferredHeight: 64
     }
 
@@ -70,15 +64,6 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 64
         }
-    }
-
-    component CommandButton : RoundButton {
-        font.pointSize: 20
-        radius: 8
-        Layout.fillWidth: true
-        Layout.fillHeight: false
-        Layout.preferredWidth: 1
-        Layout.preferredHeight: 64
     }
 
     ColumnLayout {
@@ -101,7 +86,7 @@ ApplicationWindow {
 
             IndicationLabel {
                 background: Rectangle {
-                    color: emc.task.stat == rcsError ? "red" : "gray"
+                    color: emc.task.stat == emc.enums.statusError ? "red" : "gray"
                     radius: 3
                 }
                 text: statusnames[emc.task.stat]
@@ -151,7 +136,7 @@ ApplicationWindow {
                         wrapMode: TextEdit.Wrap
                         color: "white"
 
-                        readOnly: emc.task.mode !== emcProgram
+                        readOnly: emc.task.mode !== emc.enums.stateProgram
 
                         FontMetrics {
                             id: metrics
@@ -407,23 +392,28 @@ ApplicationWindow {
             id: statemachine
 
             state: {
-                if (emc.task.menu   === true)       return statenames[emcMenu]
-                if (emc.task.estop  === true)       return statenames[emcManual]
-                if (emc.task.mode   === emcManual)  return statenames[emcManual]
-                if (emc.task.mode   === emcAuto)    return statenames[emcAuto]
-                if (emc.task.mode   === emcProgram) return statenames[emcProgram]
+                if (emc.task.menu === true)
+                    return statenames[emc.enums.stateMenu]
+                if (emc.task.estop === true)
+                    return statenames[emc.enums.stateManual]
+                if (emc.task.mode === emc.enums.stateManual)
+                    return statenames[emc.enums.stateManual]
+                if (emc.task.mode === emc.enums.stateAuto)
+                    return statenames[emc.enums.stateAuto]
+                if (emc.task.mode === emc.enums.stateProgram)
+                    return statenames[emc.enums.stateProgram]
                 return null
             }
 
             states: [
                 State {
-                    name: statenames[emcManual]
+                    name: statenames[emc.enums.stateManual]
                     PropertyChanges {
                         target: btn1
                         text: qsTr("SETTINGS")
                         onClicked: {
                             emc.set_menu(true)
-                            menuLayout.currentIndex = menuConfig
+                            menuLayout.currentIndex = emc.enums.menuConfig
                         }
                     }
                     PropertyChanges {
@@ -431,28 +421,28 @@ ApplicationWindow {
                         text: qsTr("COMMAND")
                         onClicked: {
                             emc.set_menu(true)
-                            menuLayout.currentIndex = menuCommand
+                            menuLayout.currentIndex = emc.enums.menuCommand
                         }
                     }
                     PropertyChanges {
                         target: btn3
                         enabled: !emc.task.estop
                         text: qsTr("PROGRAM")
-                        onClicked: emc.set_mode(emcProgram)
+                        onClicked: emc.set_mode(emc.enums.stateProgram)
                     }
                     PropertyChanges {
                         target: btn4
                         enabled: !emc.task.estop
                         text: qsTr("EXECUTE")
-                        onClicked: emc.set_mode(emcAuto)
+                        onClicked: emc.set_mode(emc.enums.stateAuto)
                     }
                 },
                 State {
-                    name: statenames[emcAuto]
+                    name: statenames[emc.enums.stateAuto]
                     PropertyChanges {
                         target: btn1
                         text: qsTr("BACK")
-                        onClicked: emc.set_mode(emcManual)
+                        onClicked: emc.set_mode(emc.enums.stateManual)
                     }
                     PropertyChanges {
                         target: btn2
@@ -472,18 +462,18 @@ ApplicationWindow {
                     }
                 },
                 State {
-                    name: statenames[emcProgram]
+                    name: statenames[emc.enums.stateProgram]
                     PropertyChanges {
                         target: btn1
                         text: qsTr("BACK")
-                        onClicked: emc.set_mode(emcManual)
+                        onClicked: emc.set_mode(emc.enums.stateManual)
                     }
                     PropertyChanges {
                         target: btn2
                         text: qsTr("FILE")
                         onClicked: {
                             emc.set_menu(true)
-                            menuLayout.currentIndex = menuFile
+                            menuLayout.currentIndex = emc.enums.menuFile
                         }
                     }
                     PropertyChanges {
@@ -496,7 +486,7 @@ ApplicationWindow {
                     }
                 },
                 State {
-                    name: statenames[emcMenu]
+                    name: statenames[emc.enums.stateMenu]
                     PropertyChanges {
                         target: btn1
                         text: qsTr("BACK")

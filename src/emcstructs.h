@@ -3,6 +3,31 @@
 
 #include <QObject>
 
+class QEmcEnums : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(int statusUnknown MEMBER m_statusUnknown CONSTANT) int m_statusUnknown;
+    Q_PROPERTY(int statusDone MEMBER m_statusDone CONSTANT) int m_statusDone;
+    Q_PROPERTY(int statusExec MEMBER m_statusExec CONSTANT) int m_statusExec;
+    Q_PROPERTY(int statusError MEMBER m_statusError CONSTANT) int m_statusError;
+
+    Q_PROPERTY(int stateMenu MEMBER m_stateMenu CONSTANT) int m_stateMenu;
+    Q_PROPERTY(int stateManual MEMBER m_stateManual CONSTANT) int m_stateManual;
+    Q_PROPERTY(int stateAuto MEMBER m_stateAuto CONSTANT) int m_stateAuto;
+    Q_PROPERTY(int stateProgram MEMBER m_stateProgram CONSTANT) int m_stateProgram;
+
+    Q_PROPERTY(int menuEdit MEMBER m_menuEdit CONSTANT) int m_menuEdit;
+    Q_PROPERTY(int menuSettings MEMBER m_menuSettings CONSTANT) int m_menuSettings;
+    Q_PROPERTY(int menuCommand MEMBER m_menuCommand CONSTANT) int m_menuCommand;
+    Q_PROPERTY(int menuFile MEMBER m_menuFile CONSTANT) int m_menuFile;
+
+public:
+    explicit QEmcEnums(QObject *parent) : QObject(parent) {}
+
+    friend class QtEMC;
+};
+
 class QEmcInfo : public QObject
 {
     Q_OBJECT
