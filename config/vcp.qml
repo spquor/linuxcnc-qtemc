@@ -13,6 +13,8 @@ ApplicationWindow {
     palette.window: "black"
     palette.windowText: "white"
 
+    property int currentAxis: 0
+
     readonly property var statusnames: [
         qsTr("UNKNOWN"),
         qsTr("DONE"),
@@ -51,8 +53,14 @@ ApplicationWindow {
     component ScrollableMenu : ScrollView {
         clip: true
         contentWidth: width
-        topPadding: 32
-        bottomPadding: 100
+        topPadding: 40
+        bottomPadding: 120
+        ScrollBar.vertical: ScrollBar {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            implicitWidth: 40
+        }
         background: Rectangle {
             color: "gray"
             radius: 3
@@ -62,7 +70,7 @@ ApplicationWindow {
             id: innerLayout
             columns: 1
             anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width - 64
+            width: parent.width - 120
         }
     }
 
@@ -194,6 +202,12 @@ ApplicationWindow {
 
                 ScrollableMenu {
 
+                    Label {
+                        text: qsTr("MACHINE CONTROL")
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
                     CommandButton {
                         text: qsTr("ESTOP ON/OFF")
                         onClicked: emc.set_estop(!emc.task.estop)
@@ -205,137 +219,40 @@ ApplicationWindow {
                         onClicked: emc.set_power(!emc.task.power)
                     }
 
-                    CommandButton {
-                        text: qsTr("HOME X AXIS")
-                        enabled: emc.task.power
-                        onClicked: emc.set_home(0, true)
+                    Label {
+                        text: "\n" + qsTr("AXIS") + ` ${emc.info.axes[currentAxis]} ` + qsTr("CONTROL")
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
                     CommandButton {
-                        text: qsTr("JOG X FORWARD")
+                        text: qsTr("NEXT AXIS")
                         enabled: emc.task.power
-                        onPressed: emc.jog(0, +100)
-                        onReleased: emc.jog_stop(0)
-                        onCanceled: emc.jog_stop(0)
+                        onClicked: currentAxis = (currentAxis + 1) % emc.info.axes.length
                     }
 
                     CommandButton {
-                        text: qsTr("JOG X BACKWARD")
+                        text: qsTr("HOME AXIS")
                         enabled: emc.task.power
-                        onPressed: emc.jog(0, -100)
-                        onReleased: emc.jog_stop(0)
-                        onCanceled: emc.jog_stop(0)
+                        onClicked: emc.set_home(currentAxis, true)
                     }
 
                     CommandButton {
-                        text: qsTr("HOME Y AXIS")
+                        text: qsTr("JOG FORWARD")
                         enabled: emc.task.power
-                        onClicked: emc.set_home(1, true)
+                        onPressed: emc.jog(currentAxis, +10)
+                        onReleased: emc.jog_stop(currentAxis)
+                        onCanceled: emc.jog_stop(currentAxis)
                     }
 
                     CommandButton {
-                        text: qsTr("JOG Y FORWARD")
+                        text: qsTr("JOG BACKWARD")
                         enabled: emc.task.power
-                        onPressed: emc.jog(1, +100)
-                        onReleased: emc.jog_stop(1)
-                        onCanceled: emc.jog_stop(1)
+                        onPressed: emc.jog(currentAxis, -10)
+                        onReleased: emc.jog_stop(currentAxis)
+                        onCanceled: emc.jog_stop(currentAxis)
                     }
 
-                    CommandButton {
-                        text: qsTr("JOG Y BACKWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(1, -100)
-                        onReleased: emc.jog_stop(1)
-                        onCanceled: emc.jog_stop(1)
-                    }
-
-                    CommandButton {
-                        text: qsTr("HOME Z AXIS")
-                        enabled: emc.task.power
-                        onClicked: emc.set_home(2, true)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Z FORWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(2, +100)
-                        onReleased: emc.jog_stop(2)
-                        onCanceled: emc.jog_stop(2)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG Z BACKWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(2, -100)
-                        onReleased: emc.jog_stop(2)
-                        onCanceled: emc.jog_stop(2)
-                    }
-
-                    CommandButton {
-                        text: qsTr("HOME A AXIS")
-                        enabled: emc.task.power
-                        onClicked: emc.set_home(3, true)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG A FORWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(3, +100)
-                        onReleased: emc.jog_stop(3)
-                        onCanceled: emc.jog_stop(3)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG A BACKWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(3, -100)
-                        onReleased: emc.jog_stop(3)
-                        onCanceled: emc.jog_stop(3)
-                    }
-
-                    CommandButton {
-                        text: qsTr("HOME B AXIS")
-                        enabled: emc.task.power
-                        onClicked: emc.set_home(4, true)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG B FORWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(4, +100)
-                        onReleased: emc.jog_stop(4)
-                        onCanceled: emc.jog_stop(4)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG B BACKWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(4, -100)
-                        onReleased: emc.jog_stop(4)
-                        onCanceled: emc.jog_stop(4)
-                    }
-
-                    CommandButton {
-                        text: qsTr("HOME C AXIS")
-                        enabled: emc.task.power
-                        onClicked: emc.set_home(5, true)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG C FORWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(5, +100)
-                        onReleased: emc.jog_stop(5)
-                        onCanceled: emc.jog_stop(5)
-                    }
-
-                    CommandButton {
-                        text: qsTr("JOG C BACKWARD")
-                        enabled: emc.task.power
-                        onPressed: emc.jog(5, -100)
-                        onReleased: emc.jog_stop(5)
-                        onCanceled: emc.jog_stop(5)
-                    }
                 }
 
                 ScrollableMenu {
@@ -360,10 +277,6 @@ ApplicationWindow {
             }
 
             Label {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.preferredWidth: 1
-
                 font.pointSize: 40
                 font.family: "monospace"
                 background: Rectangle {
@@ -371,17 +284,24 @@ ApplicationWindow {
                     radius: 3
                 }
 
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+
                 GridLayout {
                     columns: 1
                     anchors.fill: parent
                     anchors.margins: 64
 
-                    Label { text: `X: ${emc.joint(0).position.toFixed(2)}` }
-                    Label { text: `Y: ${emc.joint(1).position.toFixed(2)}` }
-                    Label { text: `Z: ${emc.joint(2).position.toFixed(2)}` }
-                    Label { text: `A: ${emc.joint(3).position.toFixed(2)}` }
-                    Label { text: `B: ${emc.joint(4).position.toFixed(2)}` }
-                    Label { text: `C: ${emc.joint(5).position.toFixed(2)}` }
+                    Repeater {
+                        model: emc.info.jointnum
+
+                        Label {
+                            readonly property int i: index
+                            color: emc.joint(i).homed ? "lightgreen" : "white"
+                            text: `${emc.info.axes[i]}: ${emc.joint(i).position.toFixed(4)}`
+                        }
+                    }
                 }
             }
 
@@ -413,7 +333,7 @@ ApplicationWindow {
                         text: qsTr("SETTINGS")
                         onClicked: {
                             emc.set_menu(true)
-                            menuLayout.currentIndex = emc.enums.menuConfig
+                            menuLayout.currentIndex = emc.enums.menuSettings
                         }
                     }
                     PropertyChanges {

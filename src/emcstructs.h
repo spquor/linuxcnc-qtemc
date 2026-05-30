@@ -34,6 +34,8 @@ class QEmcInfo : public QObject
 
     Q_PROPERTY(QString machine MEMBER m_machine NOTIFY sig_init) QString m_machine;
     Q_PROPERTY(QString version MEMBER m_version NOTIFY sig_init) QString m_version;
+    Q_PROPERTY(int jointnum MEMBER m_jointnum NOTIFY sig_init) int m_jointnum;
+    Q_PROPERTY(QStringList axes MEMBER m_axes NOTIFY sig_init) QStringList m_axes;
 
 public:
     explicit QEmcInfo(QObject *parent) : QObject(parent) {}

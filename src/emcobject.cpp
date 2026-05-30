@@ -43,7 +43,6 @@ void QtEMC::thisInit()
     // init qml structures
 
     m_enums = new QEmcEnums(this);
-
     m_info = new QEmcInfo(this);
     m_task = new QMachine(this);
     m_prog = new QProgram(this);
@@ -161,6 +160,8 @@ int QtEMC::initEMC(int argc, char *argv[])
 
     info->m_machine = ini.value("EMC/MACHINE", "QtEMC").toString();
     info->m_version = ini.value("EMC/VERSION", "QtEMC").toString();
+    info->m_jointnum = ini.value("KINS/JOINTS", 0).toInt();
+    info->m_axes = ini.value("KINS/COORDINATES", "").toString().split(' ', Qt::SkipEmptyParts);
 
     prog_open(ini.value("DISPLAY/PROGRAM_PREFIX").toString() +
         ini.value("DISPLAY/OPEN_FILE").toString());
@@ -169,7 +170,7 @@ int QtEMC::initEMC(int argc, char *argv[])
     syncTimerId = startTimer(ini.value("DISPLAY/CYCLE_TIME").toReal() * 1000);
     emcTimeout = 0.0;
 
-    for(int j = 0; j < ini.value("KINS/JOINTS", 0).toInt(); ++j)
+    for(int j = 0; j < info->m_jointnum; ++j)
     {
         QJoint *qjoint = qobject_cast<QJoint *>(m_motion.at(j));
 
