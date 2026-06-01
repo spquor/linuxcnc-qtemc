@@ -161,7 +161,17 @@ int QtEMC::initEMC(int argc, char *argv[])
     info->m_machine = ini.value("EMC/MACHINE", "QtEMC").toString();
     info->m_version = ini.value("EMC/VERSION", "QtEMC").toString();
     info->m_jointnum = ini.value("KINS/JOINTS", 0).toInt();
-    info->m_axes = ini.value("KINS/COORDINATES", "").toString().split(' ', Qt::SkipEmptyParts);
+    info->m_axes = ini.value("TRAJ/COORDINATES", "").toString().split(' ', Qt::SkipEmptyParts);
+
+    info->m_initjogspd = ini.value("DISPLAY/DEFAULT_LINEAR_VELOCITY", 10).toInt();
+    info->m_maxjogspd = ini.value("DISPLAY/MAX_LINEAR_VELOCITY", 100).toInt();
+    info->m_initspinspd = ini.value("DISPLAY/DEFAULT_SPINDLE_SPEED", 10).toInt();
+    info->m_maxspinspd = ini.value("DISPLAY/MAX_SPINDLE_SPEED", 3000).toInt();
+
+    info->m_initfeed = 100;
+    info->m_maxfeed = ini.value("DISPLAY/MAX_FEED_OVERRIDE", 1.5).toReal() * 100;
+    info->m_initrapid = 100;
+    info->m_maxrapid = ini.value("DISPLAY/MAX_SPINDLE_OVERRIDE", 1.5).toReal() * 100;
 
     prog_open(ini.value("DISPLAY/PROGRAM_PREFIX").toString() +
         ini.value("DISPLAY/OPEN_FILE").toString());

@@ -175,29 +175,58 @@ ApplicationWindow {
 
                 ScrollableMenu {
 
-                    CommandButton {
-                        text: qsTr("TEACH G COMMAND")
+                    Label {
+                        text: qsTr("JOG MAX SPEED:") + ` ${jogMaxSpeed.value.toFixed(0)}`
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
-                    CommandButton {
-                        text: qsTr("JOG MAX SPEED")
+                    Slider {
+                        id: jogMaxSpeed
+                        to: emc.info.maxjogspd
+                        value: emc.info.initjogspd
+                        Layout.fillWidth: true
                     }
 
-                    CommandButton {
-                        text: qsTr("SPINDLE MAX SPEED")
+                    Label {
+                        text: qsTr("SPINDLE MAX SPEED:") + ` ${spindleMaxSpeed.value.toFixed(0)}`
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
-                    CommandButton {
-                        text: qsTr("FEED OVERRIDE")
+                    Slider {
+                        id: spindleMaxSpeed
+                        to: emc.info.maxspinspd
+                        value: emc.info.initspinspd
+                        Layout.fillWidth: true
                     }
 
-                    CommandButton {
-                        text: qsTr("RAPID OVERRIDE")
+                    Label {
+                        text: qsTr("FEED OVERRIDE:") + ` ${emc.task.feed.toFixed(0)} `
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
-                    CommandButton {
-                        text: qsTr("JOYSTICK CONTROL")
+                    Slider {
+                        onValueChanged: emc.override_feed(value)
+                        to: emc.info.maxfeed
+                        value: emc.info.initfeed
+                        Layout.fillWidth: true
                     }
+
+                    Label {
+                        text: qsTr("RAPID OVERRIDE:") + ` ${emc.task.rapid.toFixed(0)} `
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    Slider {
+                        onValueChanged: emc.override_rapid(value)
+                        to: emc.info.maxrapid
+                        value: emc.info.initrapid
+                        Layout.fillWidth: true
+                    }
+
                 }
 
                 ScrollableMenu {
@@ -240,7 +269,7 @@ ApplicationWindow {
                     CommandButton {
                         text: qsTr("JOG FORWARD")
                         enabled: emc.task.power
-                        onPressed: emc.jog(currentAxis, +10)
+                        onPressed: emc.jog(currentAxis, +jogMaxSpeed.value.toFixed(0))
                         onReleased: emc.jog_stop(currentAxis)
                         onCanceled: emc.jog_stop(currentAxis)
                     }
@@ -248,7 +277,7 @@ ApplicationWindow {
                     CommandButton {
                         text: qsTr("JOG BACKWARD")
                         enabled: emc.task.power
-                        onPressed: emc.jog(currentAxis, -10)
+                        onPressed: emc.jog(currentAxis, -jogMaxSpeed.value.toFixed(0))
                         onReleased: emc.jog_stop(currentAxis)
                         onCanceled: emc.jog_stop(currentAxis)
                     }

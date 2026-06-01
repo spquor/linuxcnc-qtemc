@@ -37,6 +37,16 @@ class QEmcInfo : public QObject
     Q_PROPERTY(int jointnum MEMBER m_jointnum NOTIFY sig_init) int m_jointnum;
     Q_PROPERTY(QStringList axes MEMBER m_axes NOTIFY sig_init) QStringList m_axes;
 
+    Q_PROPERTY(int initjogspd MEMBER m_initjogspd NOTIFY sig_init) int m_initjogspd;
+    Q_PROPERTY(int maxjogspd MEMBER m_maxjogspd NOTIFY sig_init) int m_maxjogspd;
+    Q_PROPERTY(int initspinspd MEMBER m_initspinspd NOTIFY sig_init) int m_initspinspd;
+    Q_PROPERTY(int maxspinspd MEMBER m_maxspinspd NOTIFY sig_init) int m_maxspinspd;
+
+    Q_PROPERTY(int initfeed MEMBER m_initfeed NOTIFY sig_init) int m_initfeed;
+    Q_PROPERTY(int maxfeed MEMBER m_maxfeed NOTIFY sig_init) int m_maxfeed;
+    Q_PROPERTY(int initrapid MEMBER m_initrapid NOTIFY sig_init) int m_initrapid;
+    Q_PROPERTY(int maxrapid MEMBER m_maxrapid NOTIFY sig_init) int m_maxrapid;
+
 public:
     explicit QEmcInfo(QObject *parent) : QObject(parent) {}
 
