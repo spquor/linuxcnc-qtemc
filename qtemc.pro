@@ -19,7 +19,6 @@ QML_FILES += \
 EMC_FILES += \
     config/start.sh \
     config/stop.sh \
-    config/bone.hal \
     config/bone_bbgpio.hal \
     config/bone_pruss.hal \
     config/tool.tbl \

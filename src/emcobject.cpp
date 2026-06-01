@@ -28,7 +28,7 @@ QtEMC::~QtEMC()
 
 void QtEMC::thisInit()
 {
-    emcWaitType = EMC_WAIT_DONE;
+    emcWaitType = EMC_WAIT_RECEIVED;
     emcUpdateType = EMC_UPDATE_AUTO;
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
@@ -196,19 +196,23 @@ void QtEMC::timerEvent(QTimerEvent *event)
     if (emcUpdateType == EMC_UPDATE_AUTO)
         updateStatus();
 
-    set_estop(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ESTOP);
-    set_power(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ON);
+    if (emcStatus->task.status != RCS_STATUS::RCS_EXEC)
+    {
+        set_estop(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ESTOP);
+        set_power(emcStatus->task.state == EMC_TASK_STATE_ENUM::EMC_TASK_STATE_ON);
 
-    set_stat(static_cast<int>(emcStatus->task.status));
-    set_mode(static_cast<int>(emcStatus->task.mode));
+        set_stat(static_cast<int>(emcStatus->task.status));
+        set_mode(static_cast<int>(emcStatus->task.mode));
 
-    set_optstop(emcStatus->task.optional_stop_state);
-    set_blockrm(emcStatus->task.block_delete_state);
+        set_optstop(emcStatus->task.optional_stop_state);
+        set_blockrm(emcStatus->task.block_delete_state);
+    }
 
+    if (emcStatus->task.status != RCS_STATUS::UNINITIALIZED_STATUS)
     {
         QProgram *prog = qobject_cast<QProgram *>(m_prog);
 
-        prog->m_linenum = emcStatus->task.currentLine;
+        prog->m_linenum = emcStatus->task.motionLine;
         prog->m_suspend = emcStatus->task.task_paused;
 
         emit prog->sig_linenum(prog->m_linenum);
@@ -439,36 +443,21 @@ void QtEMC::prog_open(QString path)
     }
 }
 
-void QtEMC::prog_command(int cmd)
-{
-    switch (cmd)
-    {
-    case 0:
-        sendProgramRun(0);
-        break;
-    case 1:
-        sendProgramRun(1);
-        break;
-    case 2:
-        sendProgramPause();
-        break;
-    case 3:
-        sendProgramResume();
-        break;
-    case 4:
-        sendProgramStep();
-        break;
-    default:
-        break;
-    }
+void QtEMC::prog_start() {
+    sendProgramRun(0);
 }
-
-void QtEMC::task_init()
-{
+void QtEMC::prog_step() {
+    sendProgramStep();
+}
+void QtEMC::prog_pause() {
+    sendProgramPause();
+}
+void QtEMC::prog_resume() {
+    sendProgramResume();
+}
+void QtEMC::task_init() {
     sendTaskPlanInit();
 }
-
-void QtEMC::task_abort()
-{
+void QtEMC::task_abort() {
     sendAbort();
 }

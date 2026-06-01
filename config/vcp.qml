@@ -151,15 +151,15 @@ ApplicationWindow {
                         }
 
                         Rectangle {
-                            visible: true
-                            z: 1
+                            visible: emc.prog.linenum > 0
+                            z: -1
                             color: "lightyellow"
                             opacity: 0.5
 
                             x: parent.x
-                            y: parent.y + emc.prog.linenum * metrics.height * 2
+                            y: parent.y + (emc.prog.linenum - 1) * metrics.height * 2
                             width: parent.width
-                            height: metrics.height * 2
+                            height: (metrics.height - 4) * 2
                         }
 
                         anchors.fill: parent
@@ -361,24 +361,24 @@ ApplicationWindow {
                     name: statenames[emc.enums.stateAuto]
                     PropertyChanges {
                         target: btn1
-                        text: qsTr("BACK")
-                        onClicked: emc.set_mode(emc.enums.stateManual)
+                        text: !emc.prog.suspend ? qsTr("BACK") : qsTr("RESUME")
+                        onClicked: !emc.prog.suspend ? emc.set_mode(emc.enums.stateManual) : emc.prog_resume()
                     }
                     PropertyChanges {
                         target: btn2
-                        text: qsTr("START")
-                        onClicked: emc.prog_command(1)
+                        text: !emc.prog.suspend ? qsTr("START") : qsTr("STEP")
+                        onClicked: !emc.prog.suspend ? emc.prog_start() : emc.prog_step()
                     }
                     PropertyChanges {
                         target: btn3
-                        text: qsTr("ABORT")
-                        onClicked: emc.prog_abort()
+                        text: qsTr("STOP")
+                        onClicked: emc.task_abort()
                     }
                     PropertyChanges {
                         target: btn4
-                        checkable: true
-                        text: !emc.prog.suspend ? qsTr("PAUSE") : qsTr("RESUME")
-                        onClicked: !emc.prog.suspend ? emc.prog_command(2) : emc.prog_command(3)
+                        highlighted: emc.prog.suspend
+                        text: qsTr("PAUSE")
+                        onClicked: emc.prog_pause()
                     }
                 },
                 State {

@@ -45,7 +45,11 @@ public slots:
     void move_stop(int axis);
 
     void prog_open(QString path);
-    void prog_command(int cmd);
+
+    void prog_start();
+    void prog_step();
+    void prog_pause();
+    void prog_resume();
 
     void task_init();
     void task_abort();
