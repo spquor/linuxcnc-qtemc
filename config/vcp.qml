@@ -248,6 +248,12 @@ ApplicationWindow {
                         onClicked: emc.set_power(!emc.task.power)
                     }
 
+                    CommandButton {
+                        text: qsTr("UNLOCK JOINTS")
+                        enabled: !emc.task.estop && emc.task.traj > 1
+                        onClicked: emc.unlock_joints()
+                    }
+
                     Label {
                         text: "\n" + qsTr("AXIS") + ` ${emc.info.axes[currentAxis]} ` + qsTr("CONTROL")
                         font.pointSize: 20

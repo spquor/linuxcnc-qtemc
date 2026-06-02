@@ -171,7 +171,7 @@ int QtEMC::initEMC(int argc, char *argv[])
     info->m_initfeed = 100;
     info->m_maxfeed = ini.value("DISPLAY/MAX_FEED_OVERRIDE", 1.5).toReal() * 100;
     info->m_initrapid = 100;
-    info->m_maxrapid = ini.value("DISPLAY/MAX_SPINDLE_OVERRIDE", 1.5).toReal() * 100;
+    info->m_maxrapid = ini.value("DISPLAY/MAX_FEED_OVERRIDE", 1.5).toReal() * 100;
 
     prog_open(ini.value("DISPLAY/PROGRAM_PREFIX").toString() +
         ini.value("DISPLAY/OPEN_FILE").toString());
@@ -213,6 +213,8 @@ void QtEMC::timerEvent(QTimerEvent *event)
 
         set_stat(static_cast<int>(emcStatus->task.status));
         set_mode(static_cast<int>(emcStatus->task.mode));
+
+        set_traj(static_cast<int>(emcStatus->motion.traj.mode));
 
         set_optstop(emcStatus->task.optional_stop_state);
         set_blockrm(emcStatus->task.block_delete_state);
@@ -341,7 +343,7 @@ void QtEMC::set_traj(int value)
     if (!task || task->m_traj == value)
         return;
 
-    sendSetTeleopEnable(value);
+    // send(value);
 
     task->m_traj = value;
     emit task->sig_traj(value);
@@ -402,6 +404,11 @@ void QtEMC::override_rapid(double value)
 QObject* QtEMC::joint(int joint)
 {
     return m_motion.at(joint);
+}
+
+void QtEMC::unlock_joints()
+{
+    sendSetTeleopEnable(0);
 }
 
 void QtEMC::set_home(int joint, bool home)

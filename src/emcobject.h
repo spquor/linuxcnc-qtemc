@@ -36,6 +36,8 @@ public slots:
     void override_rapid(double value);
 
     QObject* joint(int joint);
+
+    void unlock_joints();
     void set_home(int joint, bool home);
 
     void jog(int joint, int speed);
