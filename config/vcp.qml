@@ -132,37 +132,59 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 1
 
-                Label {
-                    background: Rectangle {
-                        color: "gray"
-                        radius: 3
+                ColumnLayout {
+
+                    TextArea {
+                        font.pointSize: 20
+                        font.family: "monospace"
+                        wrapMode: TextEdit.Wrap
+                        color: "white"
+
+                        readOnly: true
+                        Layout.fillWidth: true
+
+                        background: Rectangle {
+                            color: "gray"
+                            radius: 3
+                        }
+
+                        text: emc.prog.mcodes.join(" ") + " " + emc.prog.gcodes.join(" ")
                     }
 
-                    TextEdit {
+                    TextArea {
                         font.pointSize: 20
                         font.family: "monospace"
                         wrapMode: TextEdit.Wrap
                         color: "white"
 
                         readOnly: emc.task.mode !== emc.enums.stateProgram
+                        readonly property double lineHeight: contentHeight / lineCount
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
 
-                        FontMetrics {
-                            id: metrics
+                        background: Rectangle {
+                            color: "gray"
+                            radius: 3
                         }
 
                         Rectangle {
                             visible: emc.prog.linenum > 0
-                            z: -1
                             color: "lightyellow"
                             opacity: 0.5
-
-                            x: parent.x
-                            y: parent.y + (emc.prog.linenum - 1) * metrics.height * 2
+                            y: parent.padding + (emc.prog.linenum - 1) * parent.lineHeight
                             width: parent.width
-                            height: (metrics.height - 4) * 2
+                            height: parent.lineHeight
                         }
 
-                        anchors.fill: parent
+                        Rectangle {
+                            visible: !parent.readOnly
+                            color: "lightyellow"
+                            opacity: 0.5
+                            y: parent.cursorRectangle.y
+                            width: parent.width
+                            height: parent.lineHeight
+                        }
+
                         text: emc.prog.text
                     }
 

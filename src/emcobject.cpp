@@ -230,13 +230,25 @@ void QtEMC::timerEvent(QTimerEvent *event)
         emit prog->sig_linenum(prog->m_linenum);
         emit prog->sig_suspend(prog->m_suspend);
 
-        prog->m_gcodes.clear(); //slow??
-        for(int gcode : emcStatus->task.activeGCodes)
-            prog->m_gcodes << QString::number(gcode);
+        prog->m_gcodes.clear();
+        for(int idx = 1; idx < ACTIVE_G_CODES; ++idx)
+        {
+            const int gcode = emcStatus->task.activeGCodes[idx];
+            if (gcode != -1) {
+                prog->m_gcodes << QString("G%1%2")
+                    .arg(gcode > 100 ? gcode / 10 : gcode)
+                    .arg(gcode > 100 && gcode % 10 ? QString(".%1").arg(gcode % 10) : "");
+            }
+        }
 
-        prog->m_mcodes.clear(); //slow??
-        for(int mcode : emcStatus->task.activeMCodes)
-            prog->m_mcodes << QString::number(mcode);
+        prog->m_mcodes.clear();
+        for(int idx = 1; idx < ACTIVE_M_CODES; ++idx)
+        {
+            const int mcode = emcStatus->task.activeMCodes[idx];
+            if (mcode != -1) {
+                prog->m_mcodes << QString("M%1").arg(mcode);
+            }
+        }
 
         emit prog->sig_gcodes(prog->m_gcodes);
         emit prog->sig_mcodes(prog->m_mcodes);
