@@ -17,10 +17,15 @@ class QEmcEnums : public QObject
     Q_PROPERTY(int stateAuto MEMBER m_stateAuto CONSTANT) int m_stateAuto;
     Q_PROPERTY(int stateProgram MEMBER m_stateProgram CONSTANT) int m_stateProgram;
 
-    Q_PROPERTY(int menuEdit MEMBER m_menuEdit CONSTANT) int m_menuEdit;
-    Q_PROPERTY(int menuSettings MEMBER m_menuSettings CONSTANT) int m_menuSettings;
-    Q_PROPERTY(int menuCommand MEMBER m_menuCommand CONSTANT) int m_menuCommand;
-    Q_PROPERTY(int menuFile MEMBER m_menuFile CONSTANT) int m_menuFile;
+    Q_PROPERTY(int menuEdit MEMBER m_menuEdit CONSTANT) int m_menuEdit = 0;
+    Q_PROPERTY(int menuSettings MEMBER m_menuSettings CONSTANT) int m_menuSettings = 1;
+    Q_PROPERTY(int menuCommand MEMBER m_menuCommand CONSTANT) int m_menuCommand = 2;
+    Q_PROPERTY(int menuFile MEMBER m_menuFile CONSTANT) int m_menuFile = 3;
+
+    Q_PROPERTY(int msgAbout MEMBER m_msgAbout CONSTANT) int m_msgAbout = 0;
+    Q_PROPERTY(int msgError MEMBER m_msgError CONSTANT) int m_msgError = 1;
+    Q_PROPERTY(int msgOpText MEMBER m_msgOpText CONSTANT) int m_msgOpText = 2;
+    Q_PROPERTY(int msgOpDisp MEMBER m_msgOpDisp CONSTANT) int m_msgOpDisp = 3;
 
 public:
     explicit QEmcEnums(QObject *parent) : QObject(parent) {}
@@ -34,6 +39,10 @@ class QEmcInfo : public QObject
 
     Q_PROPERTY(QString machine MEMBER m_machine NOTIFY sig_init) QString m_machine;
     Q_PROPERTY(QString version MEMBER m_version NOTIFY sig_init) QString m_version;
+
+    Q_PROPERTY(int msgtype MEMBER m_msgtype NOTIFY sig_msg) int m_msgtype;
+    Q_PROPERTY(QStringList msg MEMBER m_msg NOTIFY sig_msg) QStringList m_msg;
+
     Q_PROPERTY(int jointnum MEMBER m_jointnum NOTIFY sig_init) int m_jointnum;
     Q_PROPERTY(QStringList axes MEMBER m_axes NOTIFY sig_init) QStringList m_axes;
 
@@ -51,6 +60,7 @@ public:
     explicit QEmcInfo(QObject *parent) : QObject(parent) {}
 
     Q_SIGNAL void sig_init();
+    Q_SIGNAL void sig_msg();
 
     friend class QtEMC;
 };

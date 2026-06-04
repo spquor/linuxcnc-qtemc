@@ -56,6 +56,9 @@ public slots:
     void task_init();
     void task_abort();
 
+    void msg_set(QString msg, int type);
+    void msg_reset();
+
 protected:
     void timerEvent(QTimerEvent *event);
 

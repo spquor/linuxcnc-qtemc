@@ -74,6 +74,43 @@ ApplicationWindow {
         }
     }
 
+    Popup {
+        id: popupScreen
+        anchors.centerIn: parent
+        modal: true
+        focus: true
+
+        width: 640
+
+        background: Rectangle {
+            color: "black"
+            radius: 8
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                wrapMode: Text.Wrap
+                font.pointSize: 30
+                color: emc.info.msgtype === emc.enums.msgError ? "red" : "white"
+                text: emc.info.msgtype === emc.enums.msgError ? qsTr("ERROR") : qsTr("INFO")
+            }
+
+            Text {
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
+                font.pointSize: 20
+                color: "white"
+                text: emc.info.msg.join("\n")
+            }
+        }
+
+        onClosed: { emc.msg_reset() }
+        visible: emc.info.msg.length > 0
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 4
@@ -487,7 +524,11 @@ ApplicationWindow {
                 }
             ]
 
-            CommandButton { text: qsTr("LinuxCNC v2.9") }
+            CommandButton {
+                text: qsTr("LinuxCNC v2.9")
+                onClicked: emc.msg_set(qsTr("LinuxCNC controls CNC machines. It can drive milling machines, lathes, 3D printers, laser cutters, plasma cutters, robot arms, hexapods, and more."), emc.enums.msgAbout)
+            }
+
             CommandButton { id: btn1 }
             CommandButton { id: btn2 }
             CommandButton { id: btn3 }

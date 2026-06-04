@@ -33,13 +33,6 @@ void QtEMC::thisInit()
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
 
-    // init NML buffers
-
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
-    programStartLine = 0;
-
     // init qml structures
 
     m_enums = new QEmcEnums(this);
@@ -49,6 +42,11 @@ void QtEMC::thisInit()
 
     for (int j = 0; j < EMCMOT_MAX_JOINTS; ++j)
         m_motion.append(new QJoint(this));
+
+    // init NML message buffers
+
+    msg_reset();
+    programStartLine = 0;
 }
 
 void QtEMC::thisQuit()
@@ -143,11 +141,6 @@ int QtEMC::initEMC(int argc, char *argv[])
     enums->m_stateManual = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MANUAL;
     enums->m_stateAuto = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_AUTO;
     enums->m_stateProgram = EMC_TASK_MODE_ENUM::EMC_TASK_MODE_MDI;
-
-    enums->m_menuEdit = 0;
-    enums->m_menuSettings = 1;
-    enums->m_menuCommand = 2;
-    enums->m_menuFile = 3;
 
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface
@@ -252,6 +245,21 @@ void QtEMC::timerEvent(QTimerEvent *event)
 
         emit prog->sig_gcodes(prog->m_gcodes);
         emit prog->sig_mcodes(prog->m_mcodes);
+
+        if (emcUpdateType == EMC_UPDATE_AUTO)
+            updateError();
+
+        QEmcEnums *enums = qobject_cast<QEmcEnums*>(m_enums);
+        QString errorString(error_string);
+        QString messageString(operator_text_string);
+        QString messageDisplay(operator_display_string);
+
+        if (!errorString.isEmpty())
+            msg_set(errorString, enums->m_msgError);
+        else if (!messageString.isEmpty())
+            msg_set(messageString, enums->m_msgOpText);
+        else if (!messageDisplay.isEmpty())
+            msg_set(messageDisplay, enums->m_msgOpDisp);
     }
 
     for(int j = 0; j < m_motion.size(); ++j)
@@ -489,4 +497,33 @@ void QtEMC::task_init() {
 }
 void QtEMC::task_abort() {
     sendAbort();
+}
+
+void QtEMC::msg_set(QString msg, int type)
+{
+    QEmcInfo* info = qobject_cast<QEmcInfo*>(m_info);
+
+    if (info->m_msg.isEmpty())
+    {
+        info->m_msg << msg;
+        info->m_msgtype = type;
+
+        emit info->sig_msg();
+    }
+    else if (info->m_msgtype == type && !info->m_msg.contains(msg))
+    {
+        info->m_msg << msg;
+
+        emit info->sig_msg();
+    }
+}
+
+void QtEMC::msg_reset()
+{
+    QEmcInfo* info = qobject_cast<QEmcInfo*>(m_info);
+    info->m_msg.clear();
+
+    memset(operator_text_string, 0, sizeof(operator_text_string));
+    memset(operator_display_string, 0, sizeof(operator_display_string));
+    memset(error_string, 0, sizeof(error_string));
 }
