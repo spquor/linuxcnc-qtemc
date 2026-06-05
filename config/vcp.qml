@@ -2,7 +2,9 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+
 import QtQuick.VirtualKeyboard 2.15
+import Qt.labs.folderlistmodel 2.12
 
 ApplicationWindow {
     visible: true
@@ -173,6 +175,8 @@ ApplicationWindow {
                         color: "white"
 
                         readOnly: true
+
+                        Layout.preferredHeight: padding + 100
                         Layout.fillWidth: true
 
                         background: Rectangle {
@@ -191,6 +195,7 @@ ApplicationWindow {
 
                         readOnly: emc.task.mode !== emc.enums.stateProgram
                         readonly property double lineHeight: contentHeight / lineCount
+
                         Layout.fillHeight: true
                         Layout.fillWidth: true
 
@@ -215,6 +220,12 @@ ApplicationWindow {
                             y: parent.cursorRectangle.y
                             width: parent.width
                             height: parent.lineHeight
+                        }
+
+                        onEditingFinished: {
+                            emc.task_init()
+                            emc.prog_save(emc.prog.name, text)
+                            emc.prog_open(emc.prog.name)
                         }
 
                         text: emc.prog.text
@@ -374,18 +385,24 @@ ApplicationWindow {
 
                     CommandButton {
                         text: qsTr("INSPECT")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = 4
+                        }
                     }
+                }
 
-                    CommandButton {
-                        text: qsTr("SAVE")
-                    }
+                ScrollableMenu {
 
-                    CommandButton {
-                        text: qsTr("LOAD")
-                    }
+                    Repeater {
+                        model: FolderListModel {
+                            folder: "./"
+                            nameFilters: ["*.nc", "*.ngc"]
+                        }
 
-                    CommandButton {
-                        text: qsTr("DELETE")
+                        CommandButton {
+                            text: fileName
+                        }
                     }
                 }
 

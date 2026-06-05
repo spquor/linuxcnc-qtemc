@@ -47,6 +47,7 @@ public slots:
     void move_stop(int axis);
 
     void prog_open(QString path);
+    void prog_save(QString path, QString text);
 
     void prog_start();
     void prog_step();

@@ -480,6 +480,16 @@ void QtEMC::prog_open(QString path)
     }
 }
 
+void QtEMC::prog_save(QString path, QString text)
+{
+    QFile file = QFile(path);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream out(&file);
+        out << text;
+    }
+}
+
 void QtEMC::prog_start() {
     sendProgramRun(0);
 }
