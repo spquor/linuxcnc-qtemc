@@ -115,11 +115,6 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.margins: 4
 
-        // transform: Scale {
-        //     xScale: 0.5
-        //     yScale: 0.5
-        // }
-
         RowLayout {
 
             IndicationLabel {
@@ -130,15 +125,15 @@ ApplicationWindow {
             }
 
             IndicationLabel {
+                text: statemachine.state
+            }
+
+            IndicationLabel {
                 background: Rectangle {
                     color: emc.task.stat == emc.enums.statusError ? "red" : "gray"
                     radius: 3
                 }
                 text: statusnames[emc.task.stat]
-            }
-
-            IndicationLabel {
-                text: statemachine.state
             }
 
             IndicationLabel {
@@ -165,8 +160,8 @@ ApplicationWindow {
                 id: menuLayout
                 currentIndex: 0
 
-                Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.fillWidth: true
                 Layout.preferredWidth: 1
 
                 ColumnLayout {
@@ -233,6 +228,32 @@ ApplicationWindow {
                 }
 
                 ScrollableMenu {
+
+                    Label {
+                        text: qsTr("MODE SELECT")
+                        font.pointSize: 20
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    CommandButton {
+                        text: qsTr("MANUAL JOG")
+                        highlighted: emc.task.mode === emc.enums.stateManual
+                        onClicked: emc.set_mode(emc.enums.stateManual)
+                    }
+
+                    CommandButton {
+                        text: qsTr("PROGRAMMING")
+                        highlighted: emc.task.mode === emc.enums.stateProgram
+                        onClicked: emc.set_mode(emc.enums.stateProgram)
+                    }
+
+                    CommandButton {
+                        text: qsTr("AUTO CYCLE")
+                        highlighted: emc.task.mode === emc.enums.stateAuto
+                        onClicked: emc.set_mode(emc.enums.stateAuto)
+                    }
+
+                    Label { Layout.preferredHeight: 32 }
 
                     Label {
                         text: qsTr("JOG MAX SPEED:") + ` ${jogMaxSpeed.value.toFixed(0)}`
@@ -440,23 +461,20 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: btn3
-                        enabled: !emc.task.estop
-                        text: qsTr("PROGRAM")
-                        onClicked: emc.set_mode(emc.enums.stateProgram)
                     }
                     PropertyChanges {
                         target: btn4
-                        enabled: !emc.task.estop
-                        text: qsTr("EXECUTE")
-                        onClicked: emc.set_mode(emc.enums.stateAuto)
                     }
                 },
                 State {
                     name: statenames[emc.enums.stateAuto]
                     PropertyChanges {
                         target: btn1
-                        text: !emc.prog.suspend ? qsTr("BACK") : qsTr("RESUME")
-                        onClicked: !emc.prog.suspend ? emc.set_mode(emc.enums.stateManual) : emc.prog_resume()
+                        text: qsTr("SETTINGS")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = emc.enums.menuSettings
+                        }
                     }
                     PropertyChanges {
                         target: btn2
@@ -471,16 +489,19 @@ ApplicationWindow {
                     PropertyChanges {
                         target: btn4
                         highlighted: emc.prog.suspend
-                        text: qsTr("PAUSE")
-                        onClicked: emc.prog_pause()
+                        text: !emc.prog.suspend ? qsTr("PAUSE") : qsTr("RESUME")
+                        onClicked: !emc.prog.suspend ? emc.prog_pause() : emc.prog_resume()
                     }
                 },
                 State {
                     name: statenames[emc.enums.stateProgram]
                     PropertyChanges {
                         target: btn1
-                        text: qsTr("BACK")
-                        onClicked: emc.set_mode(emc.enums.stateManual)
+                        text: qsTr("SETTINGS")
+                        onClicked: {
+                            emc.set_menu(true)
+                            menuLayout.currentIndex = emc.enums.menuSettings
+                        }
                     }
                     PropertyChanges {
                         target: btn2
@@ -492,11 +513,9 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: btn3
-                        text: qsTr("MDI")
                     }
                     PropertyChanges {
                         target: btn4
-                        text: qsTr("TEACH")
                     }
                 },
                 State {
