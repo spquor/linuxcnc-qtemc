@@ -174,6 +174,7 @@ ApplicationWindow {
                         wrapMode: TextEdit.Wrap
                         color: "white"
 
+                        enabled: false
                         readOnly: true
 
                         Layout.preferredHeight: padding + 100
@@ -221,6 +222,8 @@ ApplicationWindow {
                             width: parent.width
                             height: parent.lineHeight
                         }
+
+                        id: programEditor
 
                         onEditingFinished: {
                             emc.task_init()
@@ -533,6 +536,9 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: btn4
+                        text: qsTr("EDIT")
+                        highlighted: programEditor.focus
+                        onClicked: programEditor.focus = !programEditor.focus
                     }
                 },
                 State {
@@ -562,13 +568,26 @@ ApplicationWindow {
 
             CommandButton {
                 text: qsTr("LinuxCNC v2.9")
-                onClicked: emc.msg_set(qsTr("LinuxCNC controls CNC machines. It can drive milling machines, lathes, 3D printers, laser cutters, plasma cutters, robot arms, hexapods, and more."), emc.enums.msgAbout)
+                focusPolicy: Qt.NoFocus
+                onClicked: emc.msg_set(qsTr("LinuxCNC controls CNC machines. It can drive milling machines, lathes," +
+                    "3D printers, laser cutters, plasma cutters, robot arms, hexapods, and more."), emc.enums.msgAbout)
             }
-
-            CommandButton { id: btn1 }
-            CommandButton { id: btn2 }
-            CommandButton { id: btn3 }
-            CommandButton { id: btn4 }
+            CommandButton {
+                id: btn1
+                focusPolicy: Qt.NoFocus
+            }
+            CommandButton {
+                id: btn2
+                focusPolicy: Qt.NoFocus
+            }
+            CommandButton {
+                id: btn3
+                focusPolicy: Qt.NoFocus
+            }
+            CommandButton {
+                id: btn4
+                focusPolicy: Qt.NoFocus
+            }
 
         }
     }
