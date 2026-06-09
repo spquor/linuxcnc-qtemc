@@ -194,6 +194,24 @@ void QtIO::timerEvent(QTimerEvent *event)
         emit sig_joystick(m_joy_x, m_joy_y, m_joy_z);
 }
 
+void QtIO::forceEmitButton(int button, bool value)
+{
+    switch (button) {
+    case 1:
+        emit sig_button1(value);
+        break;
+    case 2:
+        emit sig_button2(value);
+        break;
+    case 3:
+        emit sig_button3(value);
+        break;
+    case 4:
+        emit sig_button4(value);
+        break;
+    }
+}
+
 void QtIO::postFocusPrev()
 {
     QKeyEvent pressEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::ShiftModifier);

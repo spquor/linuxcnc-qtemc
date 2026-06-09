@@ -608,6 +608,41 @@ ApplicationWindow {
                 }
             ]
 
+            Connections {
+                target: io
+                function onSig_estop(isDown) {
+                    emc.set_estop(isDown)
+                }
+                function onSig_move(isDown) {
+                    if (isDown && !emc.task.power)
+                        emc.set_power(true)
+                }
+                function onSig_button1(isDown) {
+                    if (isDown) { btn1.onPressed(); }
+                    else { btn1.onReleased(); btn1.onClicked(); }
+                    btn1.down = { isDown }
+                }
+                function onSig_button2(isDown) {
+                    if (isDown) { btn2.onPressed(); }
+                    else { btn2.onReleased(); btn2.onClicked(); }
+                    btn2.down = { isDown }
+                }
+                function onSig_button3(isDown) {
+                    if (isDown) { btn3.onPressed(); }
+                    else { btn3.onReleased(); btn3.onClicked(); }
+                    btn3.down = { isDown }
+                }
+                function onSig_button4(isDown) {
+                    if (isDown) { btn4.onPressed(); }
+                    else { btn4.onReleased(); btn4.onClicked(); }
+                    btn4.down = { isDown }
+                }
+                function onSig_joystick(x, y, z) {
+                    if (emc.task.power)
+                        console.log(x, y, z);
+                }
+            }
+
             CommandButton {
                 text: qsTr("LinuxCNC v2.9")
                 focusPolicy: Qt.NoFocus

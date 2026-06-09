@@ -24,6 +24,8 @@ public:
     explicit QtIO(QObject *parent = nullptr);
     ~QtIO();
 
+    Q_SLOT void forceEmitButton(int button, bool value);
+
     Q_SLOT void postFocusPrev();
     Q_SLOT void postFocusNext();
     Q_SLOT void postItemActivate();
