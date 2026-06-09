@@ -430,6 +430,9 @@ QObject* QtEMC::joint(int joint)
 void QtEMC::unlock_joints()
 {
     sendSetTeleopEnable(0);
+    QEmcInfo* info = qobject_cast<QEmcInfo*>(m_info);
+    for(int joint = 0; joint < info->m_jointnum; ++joint)
+        sendUnHome(joint);
 }
 
 void QtEMC::set_home(int joint, bool home)

@@ -325,7 +325,7 @@ ApplicationWindow {
                     }
 
                     Label {
-                        text: "\n" + qsTr("AXIS") + ` ${emc.info.axes[currentAxis]} ` + qsTr("CONTROL")
+                        text: "\n" + qsTr("AXIS") + ` [ ${emc.info.axes[currentAxis]} ] ` + qsTr("CONTROL")
                         font.pointSize: 20
                         Layout.alignment: Qt.AlignHCenter
                     }
