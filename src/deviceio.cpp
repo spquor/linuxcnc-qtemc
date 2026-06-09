@@ -1,7 +1,12 @@
 #include "deviceio.h"
+#include "qnamespace.h"
+
+#include <QGuiApplication>
+#include <QWindow>
 
 #include <QSettings>
 #include <QTimerEvent>
+#include <QKeyEvent>
 
 #include <QDebug>
 
@@ -187,4 +192,34 @@ void QtIO::timerEvent(QTimerEvent *event)
 
     if (upd_x || upd_y || upd_z)
         emit sig_joystick(m_joy_x, m_joy_y, m_joy_z);
+}
+
+void QtIO::postFocusPrev()
+{
+    QKeyEvent pressEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::ShiftModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &pressEvent);
+
+    QKeyEvent releaseEvent(QEvent::KeyRelease, Qt::Key_Tab, Qt::ShiftModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &releaseEvent);
+}
+
+void QtIO::postFocusNext()
+{
+    QKeyEvent pressEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &pressEvent);
+
+    QKeyEvent releaseEvent(QEvent::KeyRelease, Qt::Key_Tab, Qt::NoModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &releaseEvent);
+}
+
+void QtIO::postItemActivate()
+{
+    QKeyEvent pressEvent(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &pressEvent);
+}
+
+void QtIO::postItemRelease()
+{
+    QKeyEvent releaseEvent(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier);
+    QGuiApplication::sendEvent(QGuiApplication::focusWindow(), &releaseEvent);
 }

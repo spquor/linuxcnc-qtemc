@@ -24,6 +24,11 @@ public:
     explicit QtIO(QObject *parent = nullptr);
     ~QtIO();
 
+    Q_SLOT void postFocusPrev();
+    Q_SLOT void postFocusNext();
+    Q_SLOT void postItemActivate();
+    Q_SLOT void postItemRelease();
+
 protected:
     void timerEvent(QTimerEvent *event);
 

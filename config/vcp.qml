@@ -579,6 +579,11 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: btn3
+                        text: qsTr("VERIFY")
+                        onClicked: {
+                            emc.set_mode(emc.enums.stateAuto)
+                            emc.prog_start(-1)
+                        }
                     }
                     PropertyChanges {
                         target: btn4
@@ -600,14 +605,19 @@ ApplicationWindow {
                     PropertyChanges {
                         target: btn2
                         text: qsTr("<<")
+                        onClicked: io.postFocusPrev()
                     }
                     PropertyChanges {
                         target: btn3
                         text: qsTr(">>")
+                        onClicked: io.postFocusNext()
                     }
                     PropertyChanges {
                         target: btn4
                         text: qsTr("SELECT")
+                        onPressed: io.postItemActivate()
+                        onReleased: io.postItemRelease()
+                        onCanceled: io.postItemRelease()
                     }
                 }
             ]
