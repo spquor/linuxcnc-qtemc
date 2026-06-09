@@ -267,7 +267,7 @@ ApplicationWindow {
                         onClicked: emc.set_mode(emc.enums.stateAuto)
                     }
 
-                    Label { Layout.preferredHeight: 32 }
+                    Label { Layout.preferredHeight: 16 }
 
                     Label {
                         text: qsTr("JOG MAX SPEED:") + ` ${jogMaxSpeed.value.toFixed(0)}`
@@ -279,19 +279,6 @@ ApplicationWindow {
                         id: jogMaxSpeed
                         to: emc.info.maxjogspd
                         value: emc.info.initjogspd
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: qsTr("SPINDLE MAX SPEED:") + ` ${spindleMaxSpeed.value.toFixed(0)}`
-                        font.pointSize: 20
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    Slider {
-                        id: spindleMaxSpeed
-                        to: emc.info.maxspinspd
-                        value: emc.info.initspinspd
                         Layout.fillWidth: true
                     }
 
@@ -329,17 +316,6 @@ ApplicationWindow {
                         text: qsTr("MACHINE CONTROL")
                         font.pointSize: 20
                         Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    CommandButton {
-                        text: qsTr("ESTOP ON/OFF")
-                        onClicked: emc.set_estop(!emc.task.estop)
-                    }
-
-                    CommandButton {
-                        text: qsTr("POWER ON/OFF")
-                        enabled: !emc.task.estop
-                        onClicked: emc.set_power(!emc.task.power)
                     }
 
                     CommandButton {
@@ -520,6 +496,7 @@ ApplicationWindow {
                     PropertyChanges {
                         target: btn2
                         text: qsTr("COMMAND")
+                        enabled: emc.task.power
                         onClicked: {
                             emc.set_menu(true)
                             menuLayout.currentIndex = emc.enums.menuCommand
@@ -527,9 +504,18 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: btn3
+                        text: qsTr("POWER")
+                        enabled: !emc.task.estop
+                        onClicked: {
+                            onClicked: emc.set_power(!emc.task.power)
+                        }
                     }
                     PropertyChanges {
                         target: btn4
+                        text: qsTr("ESTOP")
+                        onClicked: {
+                            onClicked: emc.set_estop(!emc.task.estop)
+                        }
                     }
                 },
                 State {
