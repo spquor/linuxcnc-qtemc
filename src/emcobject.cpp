@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QTimerEvent>
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 
 #include "emcglb.h"
@@ -470,7 +471,7 @@ void QtEMC::prog_open(QString path)
     if (file.open(QIODevice::ReadOnly))
     {
         QProgram* prog = qobject_cast<QProgram*>(m_prog);
-        const QString text = file.readAll();
+        const QString &text = file.readAll();
 
         prog->m_name = path;
         prog->m_text = text;
@@ -482,12 +483,29 @@ void QtEMC::prog_open(QString path)
 
 void QtEMC::prog_save(QString path, QString text)
 {
+    QString abspath = QFileInfo(path).absolutePath();
+    QDir().mkpath(abspath);
+
     QFile file = QFile(path);
     if (file.open(QIODevice::WriteOnly))
     {
         QTextStream out(&file);
         out << text;
     }
+}
+
+QString QtEMC::prog_read(QString path)
+{
+    QFile file = QFile(path);
+    if (file.open(QIODevice::ReadOnly))
+        return file.readAll();
+
+    return QString();
+}
+
+bool QtEMC::prog_remove(QString name)
+{
+    return QFile::remove(name);
 }
 
 void QtEMC::prog_start() {

@@ -387,24 +387,70 @@ ApplicationWindow {
                 ScrollableMenu {
 
                     CommandButton {
-                        text: qsTr("INSPECT")
+                        text: qsTr("SAVE")
                         onClicked: {
-                            emc.set_menu(true)
-                            menuLayout.currentIndex = 4
+                            var firstLine = programEditor.text.split("\n")[0]
+                            var nameRegex = /^[oO](\d{1,4})/
+                            var matchResult = firstLine.match(nameRegex);
+
+                            if (matchResult !== null) {
+                                 emc.prog_save(`./ngc/o${matchResult[1]}.ngc`, programEditor.text)
+                                 emc.msg_set(qsTr("Program saved to file:") + ` o${matchResult[1]}.ngc `, emc.enums.msgOpText)
+                            } else {
+                                 emc.msg_set(qsTr("Program should start with a number (e.g. o1000)"), emc.enums.msgError)
+                            }
                         }
                     }
-                }
 
-                ScrollableMenu {
+                    CommandButton {
+                        text: qsTr("OPEN")
+                        highlighted: openSubmenu.isActive
+                        onClicked: openSubmenu.isActive = !openSubmenu.isActive
+                    }
 
                     Repeater {
+                        id: openSubmenu
+                        property bool isActive: false
+
                         model: FolderListModel {
-                            folder: "./"
+                            folder: "./ngc/"
                             nameFilters: ["*.nc", "*.ngc"]
                         }
 
                         CommandButton {
                             text: fileName
+                            visible: openSubmenu.isActive
+                            onClicked: {
+                                emc.task_init()
+                                emc.prog_save(emc.prog.name, emc.prog_read(filePath))
+                                emc.prog_open(emc.prog.name)
+                                emc.msg_set(qsTr("Opened new program:") + ` ${fileName} `, emc.enums.msgOpText)
+                            }
+                        }
+                    }
+
+                    CommandButton {
+                        text: qsTr("DELETE")
+                        highlighted: deleteSubmenu.isActive
+                        onClicked: deleteSubmenu.isActive = !deleteSubmenu.isActive
+                    }
+
+                    Repeater {
+                        id: deleteSubmenu
+                        property bool isActive: false
+
+                        model: FolderListModel {
+                            folder: "./ngc/"
+                            nameFilters: ["*.nc", "*.ngc"]
+                        }
+
+                        CommandButton {
+                            text: fileName
+                            visible: deleteSubmenu.isActive
+                            onClicked: {
+                                if (emc.prog_remove(filePath))
+                                    emc.msg_set(qsTr("Program removed:") + ` ${fileName} `, emc.enums.msgOpText)
+                            }
                         }
                     }
                 }

@@ -49,6 +49,9 @@ public slots:
     void prog_open(QString path);
     void prog_save(QString path, QString text);
 
+    QString prog_read(QString path);
+    bool prog_remove(QString path);
+
     void prog_start();
     void prog_step();
     void prog_pause();
