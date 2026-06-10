@@ -125,6 +125,19 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
 
     if (successfull_load)
     {
+        m_stop_no = 1;
+        m_stop_nc = 0;
+        m_move_ok = 1;
+
+        m_button1 = 1;
+        m_button2 = 1;
+        m_button3 = 1;
+        m_button4 = 1;
+
+        m_joy_x = -1;
+        m_joy_y = -1;
+        m_joy_z = -1;
+
         syncTimerId = startTimer(100);
     }
     else
@@ -159,25 +172,25 @@ void QtIO::timerEvent(QTimerEvent *event)
     const bool upd_stop_no = readDigitalValue(m_stop_no, gpiod_line_get_value(stop_no_ln));
     const bool upd_stop_nc = readDigitalValue(m_stop_nc, gpiod_line_get_value(stop_nc_ln));
 
-    if (upd_stop_no || upd_stop_nc)
-        emit sig_estop(m_stop_no || !m_stop_nc);
+    if (upd_stop_no || upd_stop_nc || !m_stop_no || m_stop_nc)
+        emit sig_estop(!m_stop_no || m_stop_nc);
 
 
     if (readDigitalValue(m_move_ok, gpiod_line_get_value(move_ok_ln)))
-        emit sig_move(m_move_ok);
+        emit sig_move(!m_move_ok);
 
 
     if (readDigitalValue(m_button1, gpiod_line_get_value(button1_ln)))
-        emit sig_button1(m_button1);
+        emit sig_button1(!m_button1);
 
     if (readDigitalValue(m_button2, gpiod_line_get_value(button2_ln)))
-        emit sig_button2(m_button2);
+        emit sig_button2(!m_button2);
 
     if (readDigitalValue(m_button3, gpiod_line_get_value(button3_ln)))
-        emit sig_button3(m_button3);
+        emit sig_button3(!m_button3);
 
     if (readDigitalValue(m_button4, gpiod_line_get_value(button4_ln)))
-        emit sig_button4(m_button4);
+        emit sig_button4(!m_button4);
 
 
     long long joy_x, joy_y, joy_z;

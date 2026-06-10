@@ -80,18 +80,13 @@ ApplicationWindow {
         id: popupScreen
         anchors.centerIn: parent
         modal: true
-        focus: true
-
         width: 640
-
         background: Rectangle {
             color: "black"
             radius: 8
         }
-
         ColumnLayout {
             anchors.fill: parent
-
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 wrapMode: Text.Wrap
@@ -99,7 +94,6 @@ ApplicationWindow {
                 color: emc.info.msgtype === emc.enums.msgError ? "red" : "white"
                 text: emc.info.msgtype === emc.enums.msgError ? qsTr("ERROR") : qsTr("INFO")
             }
-
             Text {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
@@ -108,8 +102,7 @@ ApplicationWindow {
                 text: emc.info.msg.join("\n")
             }
         }
-
-        onClosed: { emc.msg_reset() }
+        onClosed: emc.msg_reset()
         visible: emc.info.msg.length > 0
     }
 
@@ -614,7 +607,7 @@ ApplicationWindow {
                     emc.set_estop(isDown)
                 }
                 function onSig_move(isDown) {
-                    if (isDown && !emc.task.power)
+                    if (isDown && !emc.task.power && !emc.task.estop)
                         emc.set_power(true)
                 }
                 function onSig_button1(isDown) {
