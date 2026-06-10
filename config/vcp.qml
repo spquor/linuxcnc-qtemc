@@ -135,7 +135,7 @@ ApplicationWindow {
                     color: emc.task.stat == emc.enums.statusError ? "red" : "gray"
                     radius: 3
                 }
-                text: statusnames[emc.task.stat]
+                text: statusnames[emc.task.stat] ?? null
             }
 
             IndicationLabel {

@@ -19,10 +19,9 @@ QML_FILES += \
 EMC_FILES += \
     config/start.sh \
     config/stop.sh \
-    config/bone_bbgpio.hal \
     config/bone_pruss.hal \
     config/tool.tbl \
-    config/example.ngc \
+    config/bone.ngc \
     config/bone.ini
 
 DEFINES += ULAPI

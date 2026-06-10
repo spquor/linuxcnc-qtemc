@@ -48,7 +48,7 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
     gpio_chip2 = gpiod_chip_open("/dev/gpiochip2");
     gpio_chip3 = gpiod_chip_open("/dev/gpiochip3");
 
-    if (gpio_chip0 && gpio_chip0 && gpio_chip0 && gpio_chip3 != nullptr)
+    if (gpio_chip0 && gpio_chip1 && gpio_chip2 && gpio_chip3 != nullptr)
     {
         stop_no_ln = gpiod_chip_get_line(gpio_chip2, 2);
         if (!stop_no_ln || gpiod_line_request_input(stop_no_ln, "qtemc") == -1)
@@ -79,7 +79,7 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
             qWarning("gpio line [button4] request failed");
 
         out_ena_ln = gpiod_chip_get_line(gpio_chip1, 17);
-        if (!out_ena_ln || gpiod_line_request_output(out_ena_ln, "qtemc", 1) == -1)
+        if (!out_ena_ln || gpiod_line_request_output(out_ena_ln, "qtemc", 0) == -1)
             qWarning("gpio line [ENA] request failed");
     }
     else
@@ -97,15 +97,15 @@ QtIO::QtIO(QObject *parent) : QObject(parent)
 
         if (iio_dev != nullptr)
         {
-            joy_x_chn = iio_device_find_channel(iio_dev, "voltage0", false);
+            joy_x_chn = iio_device_find_channel(iio_dev, "voltage6", false);
             if (joy_x_chn == nullptr)
                 qWarning("iio channel [joy_x] request failed");
 
-            joy_y_chn = iio_device_find_channel(iio_dev, "voltage2", false);
+            joy_y_chn = iio_device_find_channel(iio_dev, "voltage4", false);
             if (joy_y_chn == nullptr)
                 qWarning("iio channel [joy_y] request failed");
 
-            joy_z_chn = iio_device_find_channel(iio_dev, "voltage4", false);
+            joy_z_chn = iio_device_find_channel(iio_dev, "voltage2", false);
             if (joy_z_chn == nullptr)
                 qWarning("iio channel [joy_z] request failed");
         }
