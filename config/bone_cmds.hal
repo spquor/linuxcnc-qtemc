@@ -1,9 +1,9 @@
-# Tue Jun 09 15:36:16 MSK 2026
+# Mon Jun 15 08:39:40 MSK 2026
 #
 # This file:    ./bone_cmds.hal
 # Created by:   /home/user/linuxcnc/lib/hallib/basic_sim.tcl
 # With options: 
-# From inifile: /home/user/linuxcnc-qtemc/config/bone.ini
+# From inifile: /home/user/linuxcnc-qtemc/./config/bone.ini
 # Halfiles:     LIB:basic_sim.tcl
 #
 # This file contains the hal commands produced by basic_sim.tcl
